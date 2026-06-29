@@ -3,12 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0a3024">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Salaah Clock">
-<link rel="manifest" href="manifest.json">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -298,6 +292,100 @@
       </div>
     </sc-if>
 
+    <!-- ===================== NOTIFICATIONS SETTINGS ===================== -->
+    <sc-if value="{{ isNotif }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="App — Notifications" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; animation:scrIn .35s ease;">
+
+        <div style="flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:22px 22px 14px;">
+          <div onClick="{{ goHome }}" style="cursor:pointer; width:40px; height:40px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center;" style-hover="background:rgba(224,189,118,.08);">
+            <div style="width:11px; height:11px; border-left:2px solid #e0bd76; border-bottom:2px solid #e0bd76; transform:rotate(45deg); margin-left:4px;"></div>
+          </div>
+          <div style="font:23px/1 Marcellus,serif; color:#f5efe1;">Notifications</div>
+        </div>
+
+        <div style="flex:1 1 auto; min-height:0; overflow-y:auto; padding:4px 22px 30px; display:flex; flex-direction:column; gap:10px;">
+
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2px; color:rgba(224,189,118,.7); text-transform:uppercase; padding:8px 0 4px;">Per-Prayer Settings</div>
+
+          <sc-for list="{{ notifPrayers }}" as="np" hint-placeholder-count="5">
+            <div style="border:1px solid rgba(224,189,118,.22); border-radius:13px; padding:15px 17px; background:rgba(255,255,255,.015); display:flex; flex-direction:column; gap:13px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:baseline; gap:10px;">
+                  <div style="font:18px/1 Marcellus,serif; color:#f5efe1;">{{ np.key }}</div>
+                  <div style="font:16px/1 Amiri,serif; color:rgba(245,239,225,.6);">{{ np.arabic }}</div>
+                </div>
+                <div style="font:600 13px/1 'Cormorant Garamond',serif; color:rgba(245,239,225,.45);">{{ np.azanDisp }}</div>
+              </div>
+              <div style="display:flex; gap:10px;">
+
+                <!-- Audio toggle -->
+                <div onClick="{{ np.toggleAudio }}" style="cursor:pointer; flex:1; display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid {{ np.audioBorder }}; border-radius:9px; background:{{ np.audioBg }};" style-hover="border-color:#e0bd76;">
+                  <div style="width:18px; height:18px; flex:0 0 auto; position:relative; display:flex; align-items:center; justify-content:center;">
+                    <div style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:7px; height:9px; background:{{ np.audioIconCol }}; border-radius:1px;"></div>
+                    <div style="position:absolute; left:8px; top:50%; transform:translateY(-50%); width:0; height:0; border-left:7px solid {{ np.audioIconCol }}; border-top:5px solid transparent; border-bottom:5px solid transparent;"></div>
+                    <div style="position:absolute; right:0; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:2px;">
+                      <div style="width:5px; height:1.5px; background:{{ np.audioIconCol }}; border-radius:1px;"></div>
+                      <div style="width:7px; height:1.5px; background:{{ np.audioIconCol }}; border-radius:1px;"></div>
+                      <div style="width:5px; height:1.5px; background:{{ np.audioIconCol }}; border-radius:1px;"></div>
+                    </div>
+                  </div>
+                  <div style="flex:1 1 auto; min-width:0;">
+                    <div style="font:10px/1 Marcellus,serif; letter-spacing:1.5px; color:{{ np.audioLabelCol }}; text-transform:uppercase;">Audio</div>
+                    <div style="font:11px/1.3 'Cormorant Garamond',serif; color:{{ np.audioSubCol }}; margin-top:4px;">{{ np.audioSub }}</div>
+                  </div>
+                  <div style="width:32px; height:18px; border-radius:9px; background:{{ np.audioTrack }}; position:relative; flex:0 0 auto; transition:background .2s;">
+                    <div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:left .2s; left:{{ np.audioThumb }};"></div>
+                  </div>
+                </div>
+
+                <!-- Visual toggle -->
+                <div onClick="{{ np.toggleVisual }}" style="cursor:pointer; flex:1; display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid {{ np.visualBorder }}; border-radius:9px; background:{{ np.visualBg }};" style-hover="border-color:#e0bd76;">
+                  <div style="width:18px; height:18px; flex:0 0 auto; position:relative;">
+                    <div style="position:absolute; inset:1px; border:1.5px solid {{ np.visualIconCol }}; border-radius:3px;"></div>
+                    <div style="position:absolute; bottom:-2px; left:50%; transform:translateX(-50%); width:6px; height:4px; border-left:1.5px solid {{ np.visualIconCol }}; border-right:1.5px solid {{ np.visualIconCol }};"></div>
+                    <div style="position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); width:8px; height:1.5px; background:{{ np.visualIconCol }};"></div>
+                    <div style="position:absolute; top:3px; left:50%; transform:translateX(-50%); width:6px; height:1px; background:{{ np.visualIconCol }};"></div>
+                    <div style="position:absolute; top:6px; left:50%; transform:translateX(-50%); width:4px; height:1px; background:{{ np.visualIconCol }};"></div>
+                  </div>
+                  <div style="flex:1 1 auto; min-width:0;">
+                    <div style="font:10px/1 Marcellus,serif; letter-spacing:1.5px; color:{{ np.visualLabelCol }}; text-transform:uppercase;">Visual</div>
+                    <div style="font:11px/1.3 'Cormorant Garamond',serif; color:{{ np.visualSubCol }}; margin-top:4px;">{{ np.visualSub }}</div>
+                  </div>
+                  <div style="width:32px; height:18px; border-radius:9px; background:{{ np.visualTrack }}; position:relative; flex:0 0 auto; transition:background .2s;">
+                    <div style="position:absolute; top:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:left .2s; left:{{ np.visualThumb }};"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </sc-for>
+
+          <div style="margin-top:6px; padding:13px 16px; border:1px solid rgba(224,189,118,.15); border-radius:10px; background:rgba(224,189,118,.04);">
+            <div style="font:10px/1.6 Marcellus,serif; letter-spacing:1px; color:rgba(245,239,225,.45);">
+              Audio — plays the Adhan at prayer time. Visual — shows a pop-up reminder. Both can be enabled together.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== VISUAL REMINDER POPUP ===================== -->
+    <sc-if value="{{ showReminderPopup }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; background:rgba(7,27,19,.82); animation:scrIn .3s ease;">
+        <div style="width:88%; max-width:340px; border:1.5px solid #e0bd76; border-radius:18px; background:linear-gradient(160deg,#0f4938,#082a1f); padding:32px 26px; display:flex; flex-direction:column; align-items:center; gap:18px; text-align:center;">
+          <div style="font:400 38px/1 Amiri,serif; color:#e0bd76; direction:rtl;">{{ reminderArabic }}</div>
+          <div>
+            <div style="font:22px/1 Marcellus,serif; color:#f5efe1;">{{ reminderName }}</div>
+            <div style="font:12px/1 Marcellus,serif; letter-spacing:2px; color:rgba(224,189,118,.7); margin-top:7px; text-transform:uppercase;">Time for Prayer</div>
+          </div>
+          <div style="width:60px; height:1px; background:rgba(224,189,118,.4);"></div>
+          <div style="font:14px/1.5 'Cormorant Garamond',serif; color:rgba(245,239,225,.7);">{{ reminderTime }}</div>
+          <div onClick="{{ dismissReminder }}" style="cursor:pointer; margin-top:4px; padding:13px 36px; border:1.5px solid #e0bd76; border-radius:40px; font:12px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.12);">Dismiss</div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ===================== BOTTOM NAV ===================== -->
     <sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
       <div style="flex:0 0 auto; display:flex; background:#0a3024; border-top:1px solid rgba(224,189,118,.18);">
@@ -324,6 +412,15 @@
           </div>
           <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Adhan</div>
         </div>
+        <div onClick="{{ goNotif }}" style="cursor:pointer; flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 0 16px; color:{{ navColN }};">
+          <div style="position:relative; width:21px; height:22px;">
+            <div style="position:absolute; top:3px; left:50%; transform:translateX(-50%); width:15px; height:13px; border:2px solid currentColor; border-radius:3px 3px 0 0; border-bottom:none;"></div>
+            <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:6px; height:5px; border:2px solid currentColor; border-radius:50% 50% 0 0; border-bottom:none;"></div>
+            <div style="position:absolute; bottom:2px; left:0; right:0; height:2px; background:currentColor; border-radius:1px;"></div>
+            <div style="position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); width:5px; height:2px; background:currentColor; border-radius:1px;"></div>
+          </div>
+          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Alerts</div>
+        </div>
       </div>
     </sc-if>
 
@@ -346,6 +443,8 @@ class Component extends DCLogic {
     screen: 'splash', azanScreenPrayer: null,
     use24: null, showSec: null, refIdx: 0,
     showQuran: true, showHadith: true, showQuotes: true,
+    notifPrefs: { Fajr:{audio:true,visual:true}, Dhuhr:{audio:true,visual:true}, Asr:{audio:true,visual:true}, Maghrib:{audio:true,visual:true}, Isha:{audio:true,visual:true} },
+    reminderPopup: null,
   };
 
   masjids = [
@@ -392,6 +491,8 @@ class Component extends DCLogic {
       const d = localStorage.getItem('pc_custom_audio');
       const n = localStorage.getItem('pc_custom_name');
       if (d) this.setState({ customAudio: d, customName: n || 'My audio' });
+      const np = localStorage.getItem('pc_notif_prefs');
+      if (np) this.setState({ notifPrefs: JSON.parse(np) });
     } catch (e) {}
     this.masjids.forEach(m => this.fetchTimes(m));
   }
@@ -608,12 +709,39 @@ class Component extends DCLogic {
     const hit = sched.find(p => !p.sun && p.azan === hhmm);
     if (hit && this._lastFired !== hhmm) {
       this._lastFired = hhmm;
-      this.openAzan(hit.key);
-      const voice = hit.key === 'Fajr' ? 'Fajr' : this.currentVoice();
-      this.playSynth(voice);
-      this.setState({ azanPlaying: true });
+      const prefs = (this.state.notifPrefs || {})[hit.key] || {};
+      // Audio notification
+      if (prefs.audio !== false) {
+        this.openAzan(hit.key);
+        const voice = hit.key === 'Fajr' ? 'Fajr' : this.currentVoice();
+        this.playSynth(voice);
+        this.setState({ azanPlaying: true });
+      }
+      // Visual notification
+      if (prefs.visual !== false) {
+        const use24 = this.props.use24Hour ?? false;
+        const timeDisp = this.fmt(parseInt(hhmm.split(':')[0])*60 + parseInt(hhmm.split(':')[1]), use24);
+        this.setState({ reminderPopup: { key: hit.key, arabic: hit.arabic, time: timeDisp } });
+      }
     }
   }
+  dismissReminder = () => this.setState({ reminderPopup: null });
+  toggleNotifAudio = (key) => {
+    this.setState(s => {
+      const p = Object.assign({}, s.notifPrefs);
+      p[key] = Object.assign({}, p[key] || {}, { audio: !(p[key] && p[key].audio !== false) });
+      try { localStorage.setItem('pc_notif_prefs', JSON.stringify(p)); } catch(e) {}
+      return { notifPrefs: p };
+    });
+  };
+  toggleNotifVisual = (key) => {
+    this.setState(s => {
+      const p = Object.assign({}, s.notifPrefs);
+      p[key] = Object.assign({}, p[key] || {}, { visual: !(p[key] && p[key].visual !== false) });
+      try { localStorage.setItem('pc_notif_prefs', JSON.stringify(p)); } catch(e) {}
+      return { notifPrefs: p };
+    });
+  };
 
   renderVals() {
     const now = this.state.now;
@@ -719,8 +847,8 @@ class Component extends DCLogic {
     return {
       // screens
       isSplash: screen === 'splash',
-      idTagName: 'Designed by Mustafeez Rehman',
-      idTagMeta: 'Salaah Clock · v1.0',
+      idTagName: 'Designed by Your Name',
+      idTagMeta: 'Student ID · 0000000',
       isHome: screen === 'home', isMasjid: screen === 'masjid', isAzan: screen === 'azan', isDua: screen === 'dua',
       showNav: screen === 'home' || screen === 'masjid',
       goHome: () => this.go('home'), goMasjid: () => this.go('masjid'),
@@ -746,6 +874,44 @@ class Component extends DCLogic {
       azanBtnLabel: playing ? 'Pause' : 'Play Azan',
       wavePlay: playing ? 'running' : 'paused',
       azanStatus, azanStatusColor: this.state.azanEnded ? '#e0bd76' : 'rgba(245,239,225,0.5)',
+      // notifications screen
+      notifPrayers: (() => {
+        const prefs = this.state.notifPrefs || {};
+        return sched.filter(p => !p.sun).map(p => {
+          const pref = prefs[p.key] || {};
+          const audioOn = pref.audio !== false;
+          const visualOn = pref.visual !== false;
+          const gold = '#e0bd76'; const dimC = 'rgba(245,239,225,0.45)';
+          return {
+            key: p.key, arabic: p.arabic,
+            azanDisp: this.fmt((() => { const pp = (p.azan||'00:00').split(':'); return (+pp[0])*60+(+pp[1]); })(), use24),
+            toggleAudio: () => this.toggleNotifAudio(p.key),
+            toggleVisual: () => this.toggleNotifVisual(p.key),
+            audioBorder: audioOn ? '#e0bd76' : 'rgba(224,189,118,0.2)',
+            audioBg: audioOn ? 'rgba(224,189,118,0.1)' : 'transparent',
+            audioIconCol: audioOn ? gold : dimC,
+            audioLabelCol: audioOn ? gold : dimC,
+            audioSubCol: audioOn ? 'rgba(245,239,225,0.7)' : 'rgba(245,239,225,0.3)',
+            audioSub: audioOn ? 'Adhan plays' : 'Silent',
+            audioTrack: audioOn ? '#c9a45c' : 'rgba(255,255,255,0.15)',
+            audioThumb: audioOn ? '16px' : '2px',
+            visualBorder: visualOn ? '#e0bd76' : 'rgba(224,189,118,0.2)',
+            visualBg: visualOn ? 'rgba(224,189,118,0.1)' : 'transparent',
+            visualIconCol: visualOn ? gold : dimC,
+            visualLabelCol: visualOn ? gold : dimC,
+            visualSubCol: visualOn ? 'rgba(245,239,225,0.7)' : 'rgba(245,239,225,0.3)',
+            visualSub: visualOn ? 'Popup shows' : 'No popup',
+            visualTrack: visualOn ? '#c9a45c' : 'rgba(255,255,255,0.15)',
+            visualThumb: visualOn ? '16px' : '2px',
+          };
+        });
+      })(),
+      // visual reminder popup
+      showReminderPopup: !!this.state.reminderPopup,
+      reminderName: (this.state.reminderPopup || {}).key || '',
+      reminderArabic: (this.state.reminderPopup || {}).arabic || '',
+      reminderTime: (this.state.reminderPopup || {}).time || '',
+      dismissReminder: this.dismissReminder,
     };
   }
 
