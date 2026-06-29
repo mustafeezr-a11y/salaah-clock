@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a3024">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salaah Clock">
+<link rel="manifest" href="manifest.json">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -713,8 +719,8 @@ class Component extends DCLogic {
     return {
       // screens
       isSplash: screen === 'splash',
-      idTagName: 'Designed by Your Name',
-      idTagMeta: 'Student ID · 0000000',
+      idTagName: 'Designed by Mustafeez Rehman',
+      idTagMeta: 'Salaah Clock · v1.0',
       isHome: screen === 'home', isMasjid: screen === 'masjid', isAzan: screen === 'azan', isDua: screen === 'dua',
       showNav: screen === 'home' || screen === 'masjid',
       goHome: () => this.go('home'), goMasjid: () => this.go('masjid'),
