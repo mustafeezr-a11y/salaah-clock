@@ -8,9 +8,31 @@
 <body>
 <x-dc>
 <helmet>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b3a2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salaah Clock">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+  window.__deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    window.__deferredInstall = e;
+    document.dispatchEvent(new CustomEvent('pwa-installable'));
+  });
+  window.addEventListener('appinstalled', () => {
+    document.dispatchEvent(new CustomEvent('pwa-installed'));
+  });
+</script>
 <style>
   html, body { margin:0; padding:0; height:100%; background:#0a3024; -webkit-font-smoothing:antialiased; }
   * { box-sizing:border-box; }
@@ -395,6 +417,55 @@
       </div>
     </sc-if>
 
+    <!-- ===================== INSTALL BANNER ===================== -->
+    <sc-if value="{{ showInstallBanner }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; bottom:70px; left:12px; right:12px; z-index:88; animation:scrIn .4s ease;">
+        <div style="border-radius:16px; background:linear-gradient(135deg,#0b3a2b,#0e4536); border:1px solid rgba(224,189,118,.45); padding:16px 18px; display:flex; align-items:center; gap:14px; box-shadow:0 12px 32px rgba(0,0,0,.4);">
+          <div style="position:relative; width:44px; height:44px; flex:0 0 auto; border-radius:11px; background:#0e4536; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center;">
+            <div style="position:relative; width:22px; height:22px;">
+              <div style="position:absolute; inset:2px; border:1.5px solid #e0bd76;"></div>
+              <div style="position:absolute; inset:2px; border:1.5px solid #e0bd76; transform:rotate(45deg);"></div>
+              <div style="position:absolute; inset:9px; background:#e0bd76; border-radius:50%;"></div>
+            </div>
+          </div>
+          <div style="flex:1 1 auto; min-width:0;">
+            <div style="font:13px/1.1 Marcellus,serif; color:#f5efe1;">Install Salaah Clock</div>
+            <div style="font:500 12px/1.4 'Cormorant Garamond',serif; color:rgba(245,239,225,.65); margin-top:3px;">Add to home screen for quick access</div>
+          </div>
+          <div style="display:flex; gap:8px; flex:0 0 auto;">
+            <div onClick="{{ installApp }}" style="cursor:pointer; padding:8px 14px; border-radius:20px; background:#e0bd76; font:11px/1 Marcellus,serif; letter-spacing:1px; color:#0e4536; text-transform:uppercase;" style-hover="background:#ecca81;">{{ installBtnLabel }}</div>
+            <div onClick="{{ dismissInstall }}" style="cursor:pointer; width:28px; height:28px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center; font:14px/1 'Cormorant Garamond',serif; color:rgba(245,239,225,.5);" style-hover="border-color:#e0bd76;">✕</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== iOS INSTALL INSTRUCTIONS ===================== -->
+    <sc-if value="{{ showIOSInstructions }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; inset:0; z-index:95; display:flex; align-items:flex-end; justify-content:center; background:rgba(7,26,18,.7); backdrop-filter:blur(4px); animation:scrIn .3s ease;">
+        <div style="width:100%; border-radius:22px 22px 0 0; background:linear-gradient(180deg,#0f4938,#082a1f); border:1px solid rgba(224,189,118,.35); border-bottom:none; padding:30px 28px 44px; display:flex; flex-direction:column; gap:20px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font:22px/1 Marcellus,serif; color:#f5efe1;">Install on iPhone</div>
+            <div onClick="{{ dismissInstall }}" style="cursor:pointer; width:32px; height:32px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center; font:16px/1 'Cormorant Garamond',serif; color:rgba(245,239,225,.6);" style-hover="border-color:#e0bd76;">✕</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; align-items:center; gap:14px; padding:14px; border-radius:12px; background:rgba(224,189,118,.07); border:1px solid rgba(224,189,118,.18);">
+              <div style="flex:0 0 auto; width:36px; height:36px; border-radius:8px; background:rgba(224,189,118,.12); display:flex; align-items:center; justify-content:center; font:18px/1 Marcellus,serif; color:#e0bd76;">1</div>
+              <div><div style="font:600 15px/1 'Cormorant Garamond',serif; color:#f5efe1;">Tap the Share button</div><div style="font:500 13px/1.4 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); margin-top:4px;">The □↑ icon at the bottom of Safari</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px; padding:14px; border-radius:12px; background:rgba(224,189,118,.07); border:1px solid rgba(224,189,118,.18);">
+              <div style="flex:0 0 auto; width:36px; height:36px; border-radius:8px; background:rgba(224,189,118,.12); display:flex; align-items:center; justify-content:center; font:18px/1 Marcellus,serif; color:#e0bd76;">2</div>
+              <div><div style="font:600 15px/1 'Cormorant Garamond',serif; color:#f5efe1;">Tap "Add to Home Screen"</div><div style="font:500 13px/1.4 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); margin-top:4px;">Scroll down in the Share sheet</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px; padding:14px; border-radius:12px; background:rgba(224,189,118,.07); border:1px solid rgba(224,189,118,.18);">
+              <div style="flex:0 0 auto; width:36px; height:36px; border-radius:8px; background:rgba(224,189,118,.12); display:flex; align-items:center; justify-content:center; font:18px/1 Marcellus,serif; color:#e0bd76;">3</div>
+              <div><div style="font:600 15px/1 'Cormorant Garamond',serif; color:#f5efe1;">Tap "Add" — done!</div><div style="font:500 13px/1.4 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); margin-top:4px;">Salaah Clock appears on your home screen</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ===================== REMINDER POPUP ===================== -->
     <sc-if value="{{ showReminder }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute; inset:0; z-index:99; display:flex; align-items:center; justify-content:center; background:rgba(7,26,18,.88); backdrop-filter:blur(4px); animation:scrIn .3s ease;">
@@ -438,6 +509,7 @@ class Component extends DCLogic {
     screen: 'splash', azanScreenPrayer: null,
     use24: null, showSec: null, refIdx: 0,
     showQuran: true, showHadith: true, showQuotes: true,
+    showInstallBanner: false, isIOS: false, isInstalled: false,
     notifPrefs: {
       Fajr:    { audio: true,  visual: true },
       Dhuhr:   { audio: true,  visual: true },
@@ -495,6 +567,19 @@ class Component extends DCLogic {
       const np = localStorage.getItem('pc_notif_prefs');
       if (np) this.setState({ notifPrefs: JSON.parse(np) });
     } catch (e) {}
+    // PWA install detection
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua) && !/crios/i.test(ua);
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!isInstalled) {
+      if (isIOS) {
+        this.setState({ isIOS: true, showInstallBanner: true });
+      } else {
+        document.addEventListener('pwa-installable', () => this.setState({ showInstallBanner: true }));
+        if (window.__deferredInstall) this.setState({ showInstallBanner: true });
+      }
+    }
+    document.addEventListener('pwa-installed', () => this.setState({ showInstallBanner: false, isInstalled: true }));
     this.masjids.forEach(m => this.fetchTimes(m));
   }
   componentWillUnmount() {
@@ -623,7 +708,10 @@ class Component extends DCLogic {
   }
   onAdhanEnd() {
     this.stopSynth();
-    this.setState({ azanPlaying: false, azanEnded: true, screen: 'dua' });
+    if (this._sampleTimer) { clearTimeout(this._sampleTimer); this._sampleTimer = null; }
+    // If full adhan just ended (not a sample), navigate to du'a
+    const wasFull = !this._isSample;
+    this.setState({ azanPlaying: false, azanEnded: true, screen: wasFull ? 'dua' : this.state.screen });
   }
   currentVoice() { return this.state.azanVoiceSel ?? this.props.azanVoice ?? 'Egypt'; }
   ensureEl() {
@@ -639,38 +727,54 @@ class Component extends DCLogic {
   }
   stopAll() {
     this.stopSynth();
-    if (this._el) { try { this._el.pause(); } catch (e) {} }
+    if (this._el) { try { this._el.pause(); this._el.currentTime = 0; } catch (e) {} }
+    if (this._sampleTimer) { clearTimeout(this._sampleTimer); this._sampleTimer = null; }
   }
-  // A voice resolves to a real file when one exists (user import, or bundled
-  // /audio city tracks once added); otherwise null → synthesized fallback.
   srcFor(key) {
     if (key === 'custom') return this.state.customAudio || null;
     const v = this.azanVoices.find(x => x.key === key);
     return (v && v.file) || null;
   }
-  playCurrent() {
-    // Fajr prayer always uses the Fajr adhan regardless of voice selection
-    const isFajr = this.state.azanScreenPrayer === 'Fajr' || this.state.screen === 'azan' && this.state.azanScreenPrayer === 'Fajr';
-    const key = isFajr ? 'Fajr' : this.currentVoice();
+  // Play a short 15-second sample preview for voice selection
+  playSample(key) {
     const src = this.srcFor(key);
-    if (src) {
-      const a = this.ensureEl();
-      this.stopSynth();
-      a.src = src; this._fallbackOnErr = false;
-      a.play()
-        .then(() => this.setState({ azanPlaying: true, azanEnded: false }))
-        .catch(() => this.setState({ azanPlaying: false }));
-    } else {
-      // No audio loaded — open the importer so the user can pick a real file
-      this.triggerImport();
-    }
+    if (!src) { this.triggerImport(); return; }
+    this.stopAll();
+    const a = this.ensureEl();
+    a.src = src; a.currentTime = 0;
+    a.play()
+      .then(() => {
+        this.setState({ azanPlaying: true, azanEnded: false });
+        // Auto-stop after 15 seconds (sample preview only)
+        this._sampleTimer = setTimeout(() => {
+          try { a.pause(); a.currentTime = 0; } catch (e) {}
+          this.setState({ azanPlaying: false });
+        }, 15000);
+      })
+      .catch(() => this.setState({ azanPlaying: false }));
+  }
+  // Play full adhan — only called at prayer time via checkAzanTrigger
+  playFullAdhan(key) {
+    const src = this.srcFor(key);
+    if (!src) return;
+    this.stopAll();
+    const a = this.ensureEl();
+    a.src = src; a.currentTime = 0;
+    a.play()
+      .then(() => this.setState({ azanPlaying: true, azanEnded: false }))
+      .catch(() => this.setState({ azanPlaying: false }));
   }
   toggleAzan = () => {
     if (this.state.azanPlaying) { this.stopAll(); this.setState({ azanPlaying: false }); return; }
-    this.playCurrent();
+    // Play button on adhan screen = sample preview
+    const isFajr = this.state.azanScreenPrayer === 'Fajr';
+    const key = isFajr ? 'Fajr' : this.currentVoice();
+    this.playSample(key);
   };
   selectVoice(key) {
-    this.setState({ azanVoiceSel: key, azanEnded: false }, () => { if (this.state.azanPlaying) this.playCurrent(); });
+    this.setState({ azanVoiceSel: key, azanEnded: false });
+    // Tapping a chip plays a 15s sample immediately
+    this.playSample(key);
   }
   triggerImport = () => {
     const inp = document.createElement('input');
@@ -714,22 +818,12 @@ class Component extends DCLogic {
     if (hit && this._lastFired !== hhmm) {
       this._lastFired = hhmm;
       const prefs = this.state.notifPrefs[hit.key] || { audio: true, visual: true };
-      // Visual reminder popup
       if (prefs.visual) this.setState({ reminderPrayer: hit.key });
-      // Open adhan screen + play audio only if audio enabled
       if (prefs.audio) {
         this.openAzan(hit.key);
+        // Full adhan plays at prayer time — not a sample
         const voice = hit.key === 'Fajr' ? 'Fajr' : this.currentVoice();
-        const src = this.srcFor(voice);
-        if (src) {
-          const a = this.ensureEl();
-          a.src = src;
-          a.play().then(() => this.setState({ azanPlaying: true })).catch(() => {});
-          this.setState({ azanPlaying: true });
-        }
-      } else if (prefs.visual) {
-        // Audio off but visual on — just flip to reminder, don't open adhan screen
-        // (already set reminderPrayer above)
+        this.playFullAdhan(voice);
       }
     }
   }
@@ -741,6 +835,20 @@ class Component extends DCLogic {
     try { localStorage.setItem('pc_notif_prefs', JSON.stringify(prefs)); } catch (e) {}
   };
   dismissReminder = () => this.setState({ reminderPrayer: null });
+  installApp = () => {
+    if (this.state.isIOS) {
+      this.setState({ showIOSInstructions: true });
+      return;
+    }
+    if (window.__deferredInstall) {
+      window.__deferredInstall.prompt();
+      window.__deferredInstall.userChoice.then(() => {
+        window.__deferredInstall = null;
+        this.setState({ showInstallBanner: false });
+      });
+    }
+  };
+  dismissInstall = () => this.setState({ showInstallBanner: false, showIOSInstructions: false });
 
   renderVals() {
     const now = this.state.now;
@@ -840,8 +948,8 @@ class Component extends DCLogic {
     const playing = this.state.azanPlaying;
     const voiceLabel = voiceKey === 'custom' ? 'your audio' : ((this.azanVoices.find(v => v.key === voiceKey) || {}).label || voiceKey);
     const azanStatus = this.state.azanEnded ? "Azan complete · view the du'ā →"
-      : playing ? 'The call to prayer is playing'
-      : hasCustom ? 'Tap play · ' + (this.state.customName || 'your audio')
+      : playing ? '15s sample · tap chip to change voice'
+      : this.srcFor(voiceKey) ? 'Tap Play to preview · full adhan plays at prayer time'
       : 'Import an adhan MP3 to hear the call';
 
     const dim = 'rgba(245,239,225,0.5)';
@@ -876,6 +984,13 @@ class Component extends DCLogic {
           toggleVisual: () => this.toggleNotif(k, 'visual'),
         };
       }),
+      // install banner
+      showInstallBanner: this.state.showInstallBanner,
+      showIOSInstructions: this.state.showIOSInstructions,
+      isIOS: this.state.isIOS,
+      installApp: this.installApp,
+      dismissInstall: this.dismissInstall,
+      installBtnLabel: this.state.isIOS ? 'How to Install' : 'Install App',
       // visual reminder popup
       showReminder: !!this.state.reminderPrayer,
       reminderName: this.state.reminderPrayer || '',
@@ -895,7 +1010,7 @@ class Component extends DCLogic {
       hasCustom, customName: this.state.customName,
       importLabel: hasCustom ? 'Replace audio' : 'Import audio',
       azanIsPlaying: playing, azanNotPlaying: !playing,
-      azanBtnLabel: playing ? 'Pause' : (hasCustom ? 'Play Adhan' : 'Import Adhan'),
+      azanBtnLabel: playing ? 'Pause' : (this.srcFor(voiceKey) ? 'Play Sample' : 'Import Adhan'),
       wavePlay: playing ? 'running' : 'paused',
       azanStatus, azanStatusColor: this.state.azanEnded ? '#e0bd76' : 'rgba(245,239,225,0.5)',
     };
