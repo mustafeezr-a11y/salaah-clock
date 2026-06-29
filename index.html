@@ -183,6 +183,17 @@
               <div style="flex:1 1 auto; font:15px/1.3 'Cormorant Garamond',serif; color:rgba(245,239,225,.85);">{{ locStatus }}</div>
               <div onClick="{{ detectLocation }}" style="cursor:pointer; font:10px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase; color:#0b3a2b; background:#e0bd76; padding:9px 13px; border-radius:6px; opacity:{{ locBtnOpacity }};" style-hover="opacity:.85;">{{ locBtnLabel }}</div>
             </div>
+            <!-- City / country search -->
+            <div style="display:flex; gap:8px; align-items:stretch;">
+              <div style="flex:1 1 auto; display:flex; align-items:center; gap:9px; padding:11px 13px; border:1px solid rgba(224,189,118,.22); border-radius:9px; background:rgba(224,189,118,.04);">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex:0 0 auto; opacity:.7;">
+                  <circle cx="6" cy="6" r="4.5" stroke="#e0bd76" stroke-width="1.4"></circle>
+                  <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="#e0bd76" stroke-width="1.4" stroke-linecap="round"></line>
+                </svg>
+                <input type="text" value="{{ cityInput }}" onChange="{{ onCityInput }}" onKeyDown="{{ onCityKeyDown }}" placeholder="Search city or country…" style="flex:1 1 auto; background:transparent; border:none; outline:none; font:500 14px/1 'Cormorant Garamond',serif; color:#f5efe1; padding:0; width:100%; min-width:0;" />
+              </div>
+              <div onClick="{{ searchCity }}" style="cursor:pointer; padding:11px 14px; border-radius:9px; background:#e0bd76; font:10px/1 Marcellus,serif; letter-spacing:1px; color:#0b3a2b; text-transform:uppercase; opacity:{{ citySearchBtnOpacity }}; display:flex; align-items:center; flex:0 0 auto;" style-hover="opacity:.85;">{{ citySearchBtnLabel }}</div>
+            </div>
             <div style="display:flex; align-items:center; gap:7px; padding-left:4px;">
               <div style="width:6px; height:6px; border-radius:50%; background:#7fd1a8; animation:softGlow 2s ease-in-out infinite;"></div>
               <div style="font:10px/1 Marcellus,serif; letter-spacing:1.5px; color:rgba(127,209,168,.9); text-transform:uppercase;">{{ timesSource }}</div>
@@ -569,6 +580,7 @@ class Component extends DCLogic {
     showQuran: true, showHadith: true, showQuotes: true,
     showInstallBanner: false, isIOS: false, isInstalled: false,
     userLat: null, userLng: null, geoMasjids: [], locLoading: false,
+    cityInput: '', citySearching: false,
     asrMethod: 'Standard', asrOffset: 0,
     notifPrefs: {
       Fajr:    { audio: true,  visual: true },
@@ -1137,6 +1149,12 @@ class Component extends DCLogic {
       locLoading: this.state.locLoading,
       locBtnLabel: this.state.locLoading ? 'Finding…' : 'Locate',
       timesSource, detectLocation: this.detectLocation,
+      cityInput: this.state.cityInput,
+      onCityInput: e => this.setState({ cityInput: e.target.value }),
+      onCityKeyDown: e => { if (e.key === 'Enter') this.searchByCity(this.state.cityInput); },
+      searchCity: () => this.searchByCity(this.state.cityInput),
+      citySearchBtnLabel: this.state.citySearching ? 'Searching…' : 'Search',
+      citySearchBtnOpacity: this.state.citySearching ? '0.6' : '1',
       // adhan
       azanName: apRow.key, azanArabic: apRow.arabic,
       azanVoices, toggleAzan: this.toggleAzan,
@@ -1229,6 +1247,28 @@ class Component extends DCLogic {
   resetAsrOffset = () => {
     this.setState({ asrOffset: 0 });
     try { localStorage.setItem('pc_asr_offset', '0'); } catch(e) {}
+  };
+
+  searchByCity = (city) => {
+    if (!city || !city.trim()) return;
+    const q = city.trim();
+    this.setState({ citySearching: true, locStatus: 'Searching for ' + q + '…' });
+    fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=1', {
+      headers: { 'Accept-Language': 'en' }
+    })
+    .then(r => r.json())
+    .then(results => {
+      if (!results || !results.length) {
+        this.setState({ locStatus: 'City not found · try again', citySearching: false });
+        return;
+      }
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+      const label = results[0].display_name.split(',').slice(0, 2).join(',').trim();
+      this.setState({ userLat: lat, userLng: lng, locStatus: 'Finding mosques near ' + label + '…', citySearching: false });
+      this.fetchNearbyMasjids(lat, lng);
+    })
+    .catch(() => this.setState({ locStatus: 'Search failed · check connection', citySearching: false }));
   };
 
   toggleUse24 = () => {
