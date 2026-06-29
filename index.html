@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; height:100%; background:#0a3024; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  ::-webkit-scrollbar { width:0; height:0; }
+  @keyframes ringPulse { 0%{transform:scale(.62);opacity:.85} 100%{transform:scale(1.3);opacity:0} }
+  @keyframes waveBar { 0%,100%{height:9px} 50%{height:34px} }
+  @keyframes softGlow { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes scrIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+  @keyframes spinSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes dotPulse { 0%,100%{opacity:.25; transform:scale(.8)} 50%{opacity:1; transform:scale(1)} }
+  @keyframes starBreath { 0%,100%{opacity:.85} 50%{opacity:1} }
+</style>
+</helmet>
+
+<div style="width:100%; min-height:100vh; background:#0a3024; display:flex; justify-content:center; font-family:Marcellus, serif;">
+  <div style="width:100%; max-width:560px; height:100vh; max-height:100vh; overflow:hidden; position:relative; display:flex; flex-direction:column; background-color:#0e4536; background-image:repeating-linear-gradient(0deg, rgba(224,189,118,.045) 0 1px, transparent 1px 30px), repeating-linear-gradient(90deg, rgba(224,189,118,.045) 0 1px, transparent 1px 30px);">
+
+    <!-- ===================== SPLASH ===================== -->
+    <sc-if value="{{ isSplash }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ goHome }}" data-screen-label="App — Splash" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:62px 30px 40px; cursor:pointer; text-align:center; background:radial-gradient(circle at 50% 38%, #0f4938, #07271d 82%); animation:scrIn .5s ease;">
+
+        <div style="font:400 24px/1.7 Amiri,serif; color:#e0bd76; direction:rtl; opacity:.92;">بِسْمِ اللَّٰهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; gap:36px;">
+          <div style="position:relative; width:204px; height:204px; display:flex; align-items:center; justify-content:center; animation:starBreath 4s ease-in-out infinite;">
+            <div style="position:absolute; inset:0; border:1px solid rgba(224,189,118,.22); border-radius:50%; animation:spinSlow 44s linear infinite;"></div>
+            <div style="position:absolute; inset:18px; border:1px solid rgba(224,189,118,.16); border-radius:50%;"></div>
+            <div style="position:absolute; inset:42px; border:1.5px solid #e0bd76; transform:rotate(0deg);"></div>
+            <div style="position:absolute; inset:42px; border:1.5px solid #e0bd76; transform:rotate(45deg);"></div>
+            <div style="position:absolute; inset:62px; border:1px solid rgba(224,189,118,.55); transform:rotate(22.5deg);"></div>
+            <div style="position:absolute; inset:62px; border:1px solid rgba(224,189,118,.55); transform:rotate(67.5deg);"></div>
+            <div style="position:absolute; inset:84px; background:#e0bd76; border-radius:50%;"></div>
+          </div>
+
+          <div>
+            <div style="font:36px/1 Amiri,serif; color:#f5efe1; margin-bottom:16px;">أَوْقَاتُ ٱلصَّلَاة</div>
+            <div style="font:30px/1 Marcellus,serif; color:#f5efe1; letter-spacing:3px;">Prayer Clock</div>
+            <div style="font:11px/1 Marcellus,serif; letter-spacing:4px; color:rgba(224,189,118,.8); text-transform:uppercase; margin-top:13px;">Salah · Adhan · Iqamah</div>
+          </div>
+
+          <div style="display:flex; gap:9px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:#e0bd76; animation:dotPulse 1.2s ease-in-out infinite;"></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:#e0bd76; animation:dotPulse 1.2s ease-in-out infinite; animation-delay:.2s;"></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:#e0bd76; animation:dotPulse 1.2s ease-in-out infinite; animation-delay:.4s;"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+          <div style="width:42px; height:1px; background:rgba(224,189,118,.4);"></div>
+          <div style="font:11px/1.4 Marcellus,serif; letter-spacing:2px; color:rgba(245,239,225,.6); text-transform:uppercase;">{{ idTagName }}</div>
+          <div style="font:11px/1.4 'Cormorant Garamond',serif; color:rgba(245,239,225,.42); letter-spacing:1px;">{{ idTagMeta }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== HOME / TIMES ===================== -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="App — Times" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; animation:scrIn .35s ease;">
+
+        <div style="flex:0 0 auto; background:linear-gradient(105deg,#ecca81,#c9a45c); padding:18px 22px; display:flex; align-items:center; gap:13px;">
+          <div style="position:relative; width:38px; height:38px; flex:0 0 auto;">
+            <div style="position:absolute; inset:6px; border:1.5px solid #0e4536; transform:rotate(0deg);"></div>
+            <div style="position:absolute; inset:6px; border:1.5px solid #0e4536; transform:rotate(45deg);"></div>
+            <div style="position:absolute; inset:15px; background:#0e4536; border-radius:50%;"></div>
+          </div>
+          <div style="flex:1 1 auto; min-width:0;">
+            <div style="font:21px/1.1 Marcellus,serif; color:#0e4536; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ masjidName }}</div>
+            <div style="font:12px/1.3 'Cormorant Garamond',serif; font-weight:600; color:rgba(14,69,54,.78); margin-top:3px;">{{ gregShort }} · {{ hijri }}</div>
+          </div>
+          <div onClick="{{ goMasjid }}" style="cursor:pointer; flex:0 0 auto; width:40px; height:40px; border-radius:50%; border:1.5px solid rgba(14,69,54,.5); display:flex; align-items:center; justify-content:center;" style-hover="background:rgba(14,69,54,.1);">
+            <div style="position:relative; width:15px; height:15px;">
+              <div style="position:absolute; inset:0; border:2px solid #0e4536; border-radius:50% 50% 50% 0; transform:rotate(45deg);"></div>
+              <div style="position:absolute; inset:5px; background:#ecca81; border-radius:50%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 auto; min-height:0; overflow-y:auto; padding:24px 22px 26px; display:flex; flex-direction:column; gap:24px;">
+
+          <div style="display:flex; flex-direction:column; align-items:center; gap:13px;">
+            <div style="width:218px; height:218px; border-radius:50%; border:1.5px solid rgba(224,189,118,.42); display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; background:radial-gradient(circle, rgba(224,189,118,.09), transparent 70%);">
+              <div style="position:absolute; inset:11px; border:1px solid rgba(224,189,118,.16); border-radius:50%;"></div>
+              <div style="font:300 60px/1 'Cormorant Garamond',serif; color:#f5efe1;">{{ clockMain }}</div>
+              <div style="display:flex; gap:7px; align-items:baseline; margin-top:5px;">
+                <sc-if value="{{ showSeconds }}" hint-placeholder-val="{{ true }}"><div style="font:300 22px/1 'Cormorant Garamond',serif; color:#e0bd76;">{{ clockSec }}</div></sc-if>
+                <div style="font:13px/1 Marcellus,serif; color:rgba(245,239,225,.6); letter-spacing:2px;">{{ clockAmPm }}</div>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font:11px/1 Marcellus,serif; letter-spacing:2px; color:rgba(245,239,225,.55);">NEXT · {{ nextName }} {{ nextArabic }}</div>
+              <div style="font:300 30px/1 'Cormorant Garamond',serif; color:#e0bd76; margin-top:7px;">{{ countdown }}</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+            <sc-for list="{{ prayers }}" as="prayer" hint-placeholder-count="6">
+              <div style="border:1px solid rgba(224,189,118,.3); border-radius:10px; padding:13px 15px; background:{{ prayer.hlDark }}; position:relative; overflow:hidden;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font:16px/1 Marcellus,serif; color:{{ prayer.accentDark }}; opacity:{{ prayer.dim }};">{{ prayer.key }}</div>
+                  <div style="font:16px/1 Amiri,serif; color:{{ prayer.accentDark }}; opacity:{{ prayer.dim }};">{{ prayer.arabic }}</div>
+                </div>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:11px;">
+                  <div style="font:600 22px/1 'Cormorant Garamond',serif; color:{{ prayer.timeAccentDark }};">{{ prayer.azanDisp }}</div>
+                  <div style="text-align:right;">
+                    <div style="font:8px/1 Marcellus,serif; letter-spacing:1.5px; color:rgba(245,239,225,.4);">IQAMAH</div>
+                    <div style="font:14px/1 'Cormorant Garamond',serif; color:rgba(245,239,225,.72); margin-top:3px;">{{ prayer.iqamahDisp }}</div>
+                  </div>
+                </div>
+                <sc-if value="{{ prayer.isNext }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute; top:0; right:0; background:#e0bd76; color:#0e4536; font:8px/1 Marcellus,serif; letter-spacing:1.5px; padding:5px 8px; border-radius:0 0 0 9px;">NEXT</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:center; gap:22px; padding:14px 18px; border-radius:18px; background:rgba(224,189,118,.1); border:1px solid rgba(224,189,118,.3); flex-wrap:wrap;">
+            <sc-for list="{{ jummahList }}" as="j" hint-placeholder-count="3">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; color:#e0bd76;">{{ j.label }}</div>
+                <div style="font:600 18px/1 'Cormorant Garamond',serif; color:#f5efe1;">{{ j.disp }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== MASJID PICKER ===================== -->
+    <sc-if value="{{ isMasjid }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="App — Masjid Picker" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; animation:scrIn .35s ease;">
+
+        <div style="flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:22px 22px 14px;">
+          <div onClick="{{ goHome }}" style="cursor:pointer; width:40px; height:40px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center;" style-hover="background:rgba(224,189,118,.08);">
+            <div style="width:11px; height:11px; border-left:2px solid #e0bd76; border-bottom:2px solid #e0bd76; transform:rotate(45deg); margin-left:4px;"></div>
+          </div>
+          <div style="font:23px/1 Marcellus,serif; color:#f5efe1;">Find Your Masjid</div>
+        </div>
+
+        <div style="flex:1 1 auto; min-height:0; overflow-y:auto; padding:8px 22px 26px; display:flex; flex-direction:column; gap:16px;">
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:13px; padding:13px 16px; border:1px solid rgba(224,189,118,.28); border-radius:10px; background:rgba(224,189,118,.05);">
+              <div style="position:relative; width:15px; height:15px; flex:0 0 auto;">
+                <div style="position:absolute; inset:0; border:2px solid #e0bd76; border-radius:50% 50% 50% 0; transform:rotate(45deg);"></div>
+                <div style="position:absolute; inset:5px; background:#0e4536; border-radius:50%;"></div>
+              </div>
+              <div style="flex:1 1 auto; font:15px/1.3 'Cormorant Garamond',serif; color:rgba(245,239,225,.85);">{{ locStatus }}</div>
+              <div onClick="{{ detectLocation }}" style="cursor:pointer; font:10px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase; color:#0b3a2b; background:#e0bd76; padding:9px 13px; border-radius:6px;" style-hover="opacity:.85;">Locate</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:7px; padding-left:4px;">
+              <div style="width:6px; height:6px; border-radius:50%; background:#7fd1a8; animation:softGlow 2s ease-in-out infinite;"></div>
+              <div style="font:10px/1 Marcellus,serif; letter-spacing:1.5px; color:rgba(127,209,168,.9); text-transform:uppercase;">{{ timesSource }}</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <sc-for list="{{ masjids }}" as="m" hint-placeholder-count="4">
+              <div onClick="{{ m.onSelect }}" style="cursor:pointer; display:flex; align-items:center; gap:15px; padding:17px 18px; border:1px solid {{ m.cardBorder }}; border-radius:13px; background:{{ m.cardBg }};" style-hover="border-color:#e0bd76;">
+                <div style="flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:11px; background:{{ m.distBg }};">
+                  <div style="font:600 19px/1 'Cormorant Garamond',serif; color:{{ m.distColor }};">{{ m.distance }}</div>
+                  <div style="font:9px/1 Marcellus,serif; letter-spacing:1px; color:{{ m.distColor }}; margin-top:3px;">MILES</div>
+                </div>
+                <div style="flex:1 1 auto; min-width:0;">
+                  <div style="font:18px/1.18 Marcellus,serif; color:{{ m.nameColor }};">{{ m.name }}</div>
+                  <div style="font:13px/1.3 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); margin-top:5px;">{{ m.address }}</div>
+                  <div style="font:10px/1 Marcellus,serif; letter-spacing:1px; color:rgba(224,189,118,.85); text-transform:uppercase; margin-top:8px;">Jumu'ah {{ m.jummahLabel }}</div>
+                </div>
+                <div style="flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1.5px solid {{ m.cardBorder }}; display:flex; align-items:center; justify-content:center;">
+                  <sc-if value="{{ m.isSelected }}" hint-placeholder-val="{{ false }}">
+                    <div style="width:12px; height:12px; border-radius:50%; background:#e0bd76;"></div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== ADHAN ===================== -->
+    <sc-if value="{{ isAzan }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="App — Adhan" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; background:radial-gradient(circle at 50% 36%, #0f4938, #082a1f 78%); animation:scrIn .35s ease;">
+
+        <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:20px 22px;">
+          <div onClick="{{ goHome }}" style="cursor:pointer; width:38px; height:38px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center; position:relative;" style-hover="background:rgba(224,189,118,.08);">
+            <div style="position:absolute; width:13px; height:1.5px; background:#e0bd76; transform:rotate(45deg);"></div>
+            <div style="position:absolute; width:13px; height:1.5px; background:#e0bd76; transform:rotate(-45deg);"></div>
+          </div>
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:4px; color:#e0bd76; text-transform:uppercase;">Now Playing · Adhan</div>
+          <div style="width:38px;"></div>
+        </div>
+
+        <div style="flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding:10px 24px 28px;">
+          <div style="position:relative; width:220px; height:220px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
+            <div style="position:absolute; inset:0; border:1.5px solid rgba(224,189,118,.5); border-radius:50%; animation:ringPulse 2.8s ease-out infinite; animation-play-state:{{ wavePlay }};"></div>
+            <div style="position:absolute; inset:0; border:1.5px solid rgba(224,189,118,.5); border-radius:50%; animation:ringPulse 2.8s ease-out infinite; animation-delay:1.4s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:140px; height:140px; border-radius:50%; border:1.5px solid #e0bd76; display:flex; align-items:center; justify-content:center; background:rgba(224,189,118,.07);">
+              <div style="position:relative; width:54px; height:54px;">
+                <div style="position:absolute; inset:0; border:1.5px solid #e0bd76; transform:rotate(0deg);"></div>
+                <div style="position:absolute; inset:0; border:1.5px solid #e0bd76; transform:rotate(45deg);"></div>
+                <div style="position:absolute; inset:21px; background:#e0bd76; border-radius:50%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font:400 48px/1.3 Amiri,serif; color:#e0bd76; direction:rtl; text-align:center;">ٱللّٰهُ أَكْبَر</div>
+          <div style="display:flex; align-items:baseline; gap:12px;">
+            <div style="font:30px/1 Marcellus,serif; color:#f5efe1;">{{ azanName }}</div>
+            <div style="font:30px/1 Amiri,serif; color:rgba(245,239,225,.75);">{{ azanArabic }}</div>
+          </div>
+
+          <div style="display:flex; align-items:flex-end; gap:5px; height:36px;">
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:0s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.15s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.3s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.45s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.6s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.45s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.3s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:.15s; animation-play-state:{{ wavePlay }};"></div>
+            <div style="width:5px; background:#e0bd76; border-radius:3px; animation:waveBar 1s ease-in-out infinite; animation-delay:0s; animation-play-state:{{ wavePlay }};"></div>
+          </div>
+
+          <div onClick="{{ toggleAzan }}" style="cursor:pointer; display:flex; align-items:center; gap:13px; padding:15px 34px; border:1.5px solid #e0bd76; border-radius:40px; background:rgba(224,189,118,.08);" style-hover="background:rgba(224,189,118,.18);">
+            <sc-if value="{{ azanIsPlaying }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:5px;"><div style="width:4px; height:16px; background:#e0bd76;"></div><div style="width:4px; height:16px; background:#e0bd76;"></div></div>
+            </sc-if>
+            <sc-if value="{{ azanNotPlaying }}" hint-placeholder-val="{{ true }}">
+              <div style="width:0; height:0; border-left:14px solid #e0bd76; border-top:9px solid transparent; border-bottom:9px solid transparent;"></div>
+            </sc-if>
+            <div style="font:13px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;">{{ azanBtnLabel }}</div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; align-items:center; gap:11px;">
+            <div style="font:10px/1 Marcellus,serif; letter-spacing:2px; color:rgba(245,239,225,.45); text-transform:uppercase;">Muadhin Voice</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+              <sc-for list="{{ azanVoices }}" as="v" hint-placeholder-count="4">
+                <div onClick="{{ v.onSelect }}" style="cursor:pointer; padding:9px 15px; border-radius:22px; border:1px solid {{ v.border }}; background:{{ v.bg }}; font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ v.color }};" style-hover="border-color:#e0bd76;">{{ v.label }}</div>
+              </sc-for>
+              <div onClick="{{ triggerImport }}" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:9px 15px; border-radius:22px; border:1px dashed rgba(224,189,118,.5); font:11px/1 Marcellus,serif; letter-spacing:1px; color:rgba(245,239,225,.7);" style-hover="border-color:#e0bd76;">
+                <span style="font:14px/1 Marcellus,serif; color:#e0bd76;">+</span>{{ importLabel }}
+              </div>
+            </div>
+            <sc-if value="{{ hasCustom }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div style="font:11px/1.3 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Loaded · {{ customName }}</div>
+                <div onClick="{{ clearCustom }}" style="cursor:pointer; font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase; color:rgba(245,239,225,.5);" style-hover="color:#e0bd76;">Remove</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div onClick="{{ goDua }}" style="cursor:pointer; font:11px/1 Marcellus,serif; letter-spacing:2px; color:{{ azanStatusColor }}; text-transform:uppercase; text-align:center;" style-hover="color:#e0bd76;">{{ azanStatus }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== DU'A ===================== -->
+    <sc-if value="{{ isDua }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="App — Dua" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; animation:scrIn .35s ease;">
+
+        <div style="flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:22px 22px 6px;">
+          <div onClick="{{ goAzan }}" style="cursor:pointer; width:40px; height:40px; border-radius:50%; border:1px solid rgba(224,189,118,.3); display:flex; align-items:center; justify-content:center;" style-hover="background:rgba(224,189,118,.08);">
+            <div style="width:11px; height:11px; border-left:2px solid #e0bd76; border-bottom:2px solid #e0bd76; transform:rotate(45deg); margin-left:4px;"></div>
+          </div>
+          <div style="font:11px/1 Marcellus,serif; letter-spacing:3px; color:#e0bd76; text-transform:uppercase;">Du'ā After the Adhan</div>
+        </div>
+
+        <div style="flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding:14px 30px 26px;">
+          <div style="font:24px/1 Amiri,serif; color:rgba(245,239,225,.85);">دُعَاءُ بَعْدَ الْأَذَان</div>
+          <div style="font:400 30px/2.05 Amiri,serif; color:#f5efe1; direction:rtl; text-align:center;">اللَّهُمَّ رَبَّ هَٰذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَّحْمُودًا الَّذِي وَعَدْتَهُ</div>
+          <div style="width:80px; height:1px; background:rgba(224,189,118,.5);"></div>
+          <div style="font:400 16px/1.7 'Cormorant Garamond',serif; color:rgba(224,189,118,.85); font-style:italic; text-align:center;">Allāhumma Rabba hādhihi'd-da'wati't-tāmmah, wa'ṣ-ṣalāti'l-qā'imah, āti Muḥammadan al-wasīlata wa'l-faḍīlah, wab'ath-hu maqāman maḥmūdan alladhī wa'adtah.</div>
+          <div style="font:400 19px/1.65 'Cormorant Garamond',serif; color:#f5efe1; text-align:center;">"O Allah, Lord of this perfect call and the prayer to be established, grant Muhammad the means and the high rank, and raise him to the praised station that You have promised him."</div>
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2px; color:rgba(245,239,225,.45); text-transform:uppercase;">Ṣaḥīḥ al-Bukhārī</div>
+          <div onClick="{{ goHome }}" style="cursor:pointer; margin-top:6px; padding:14px 32px; border:1.5px solid #e0bd76; border-radius:40px; font:12px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.12);">Back to Times</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== BOTTOM NAV ===================== -->
+    <sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:0 0 auto; display:flex; background:#0a3024; border-top:1px solid rgba(224,189,118,.18);">
+        <div onClick="{{ goHome }}" style="cursor:pointer; flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 0 16px; color:{{ navColH }};">
+          <div style="width:21px; height:21px; border:2px solid currentColor; border-radius:50%; position:relative;">
+            <div style="position:absolute; left:50%; top:3px; width:2px; height:7px; background:currentColor; transform:translateX(-50%); border-radius:1px;"></div>
+            <div style="position:absolute; left:50%; top:50%; width:6px; height:2px; background:currentColor; transform:translate(-1px,-50%); border-radius:1px;"></div>
+          </div>
+          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Times</div>
+        </div>
+        <div onClick="{{ goMasjid }}" style="cursor:pointer; flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 0 16px; color:{{ navColM }};">
+          <div style="position:relative; width:21px; height:21px;">
+            <div style="position:absolute; inset:2px; border:2px solid currentColor;"></div>
+            <div style="position:absolute; inset:2px; border:2px solid currentColor; transform:rotate(45deg);"></div>
+          </div>
+          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Masjid</div>
+        </div>
+        <div onClick="{{ goAzanNav }}" style="cursor:pointer; flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 0 16px; color:{{ navColA }};">
+          <div style="display:flex; align-items:flex-end; gap:3px; height:21px;">
+            <div style="width:3px; height:9px; background:currentColor; border-radius:2px;"></div>
+            <div style="width:3px; height:17px; background:currentColor; border-radius:2px;"></div>
+            <div style="width:3px; height:12px; background:currentColor; border-radius:2px;"></div>
+            <div style="width:3px; height:7px; background:currentColor; border-radius:2px;"></div>
+          </div>
+          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Adhan</div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 560, &quot;height&quot;: 1040 },
+  &quot;use24Hour&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Clock&quot; },
+  &quot;showSeconds&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Clock&quot; },
+  &quot;asrSchool&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Standard&quot;, &quot;options&quot;: [&quot;Standard&quot;, &quot;Hanafi&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Prayer times&quot; },
+  &quot;azanVoice&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Egypt&quot;, &quot;options&quot;: [&quot;Egypt&quot;, &quot;Makkah&quot;, &quot;Madinah&quot;, &quot;Fajr&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Adhan&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    now: new Date(), selectedId: 'iccm',
+    locStatus: 'Milton, Ontario · Using your location', times: {},
+    azanPlaying: false, azanEnded: false, azanVoiceSel: null,
+    customAudio: null, customName: '',
+    screen: 'splash', azanScreenPrayer: null,
+    use24: null, showSec: null, refIdx: 0,
+    showQuran: true, showHadith: true, showQuotes: true,
+  };
+
+  masjids = [
+    { id: 'sfic', name: 'Sayyidah Fatemah Islamic Centre', address: 'Milton, ON · miltonmosque.com', distance: '1.1', jummah: '13:15',
+      lat: 43.5145, lng: -79.8825, method: 2, iqOff: { Fajr: 25, Dhuhr: 12, Asr: 12, Maghrib: 8, Isha: 12 },
+      sched: [ ['Fajr','الفجر','04:00','04:25'], ['Sunrise','الشروق','05:48',null], ['Dhuhr','الظهر','13:23','13:35'], ['Asr','العصر','17:25','17:37'], ['Maghrib','المغرب','21:02','21:10'], ['Isha','العشاء','22:35','22:47'] ] },
+    { id: 'hlc', name: 'HLC Musala — Muslim Assoc. of Milton', address: 'Halton Learning Centre · Milton, ON', distance: '2.0', jummah: '13:00',
+      lat: 43.5061, lng: -79.8836, method: 2, iqOff: { Fajr: 20, Dhuhr: 10, Asr: 10, Maghrib: 6, Isha: 10 },
+      sched: [ ['Fajr','الفجر','04:00','04:20'], ['Sunrise','الشروق','05:48',null], ['Dhuhr','الظهر','13:23','13:33'], ['Asr','العصر','17:25','17:35'], ['Maghrib','المغرب','21:02','21:08'], ['Isha','العشاء','22:35','22:45'] ] },
+    { id: 'iccm', name: 'Islamic Community Centre of Milton', address: '8069 Esquesing Line · Milton, ON', distance: '3.2', jummah: '13:30', jummahs: ['13:30','14:45','15:45'],
+      lat: 43.5552, lng: -79.8607, method: 2,
+      iqFixed: { Fajr: '04:45', Dhuhr: '13:40', Asr: '19:00', Isha: '22:45' }, iqOff: { Maghrib: 6 },
+      sched: [ ['Fajr','الفجر','03:53','04:45'], ['Sunrise','الشروق','05:48',null], ['Dhuhr','الظهر','13:23','13:40'], ['Asr','العصر','17:29','19:00'], ['Maghrib','المغرب','21:05','21:11'], ['Isha','العشاء','22:30','22:45'] ] },
+    { id: 'hicc', name: 'HICC Masjid — Muslim Assoc. of Milton', address: 'Halton Islamic Community Centre · Oakville, ON', distance: '4.0', jummah: '13:45',
+      lat: 43.4501, lng: -79.7000, method: 2, iqOff: { Fajr: 25, Dhuhr: 15, Asr: 15, Maghrib: 7, Isha: 15 },
+      sched: [ ['Fajr','الفجر','04:01','04:26'], ['Sunrise','الشروق','05:47',null], ['Dhuhr','الظهر','13:22','13:37'], ['Asr','العصر','17:24','17:39'], ['Maghrib','المغرب','21:01','21:08'], ['Isha','العشاء','22:34','22:49'] ] },
+  ];
+
+  // Royalty-free, synthesized in-app — no copyrighted recordings. Each "voice" is a
+  // melodic tone profile (base pitch) rendered live with the Web Audio API.
+  azanVoices = [
+    { key: 'Egypt',   label: 'Egypt',     base: 196.00 },
+    { key: 'Makkah',  label: 'Makkah',    base: 174.61 },
+    { key: 'Madinah', label: 'Madinah',   base: 220.00 },
+    { key: 'Fajr',    label: 'Fajr Tone', base: 164.81 },
+  ];
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.asrSchool !== this.props.asrSchool) {
+      this.setState({ times: {} });
+      this.masjids.forEach(m => this.fetchTimes(m));
+    }
+  }
+  componentDidMount() {
+    this._t = setInterval(() => {
+      const now = new Date();
+      this.setState({ now });
+      this.checkAzanTrigger(now);
+    }, 1000);
+    this._splashTimer = setTimeout(() => {
+      if (this.state.screen === 'splash') this.setState({ screen: 'home' });
+    }, 2900);
+    try {
+      const d = localStorage.getItem('pc_custom_audio');
+      const n = localStorage.getItem('pc_custom_name');
+      if (d) this.setState({ customAudio: d, customName: n || 'My audio' });
+    } catch (e) {}
+    this.masjids.forEach(m => this.fetchTimes(m));
+  }
+  componentWillUnmount() {
+    if (this._t) clearInterval(this._t);
+    if (this._splashTimer) clearTimeout(this._splashTimer);
+    this.stopSynth();
+  }
+
+  fmt(min, use24) {
+    let h = Math.floor(min / 60) % 24, m = min % 60;
+    const pad = n => String(n).padStart(2, '0');
+    if (use24) return pad(h) + ':' + pad(m);
+    const ampm = h < 12 ? 'AM' : 'PM';
+    let hh = h % 12; if (hh === 0) hh = 12;
+    return hh + ':' + pad(m) + ' ' + ampm;
+  }
+  addMin(hhmm, n) {
+    const p = (hhmm || '00:00').split(':');
+    let mins = (+p[0]) * 60 + (+p[1]) + (n || 0);
+    mins = ((mins % 1440) + 1440) % 1440;
+    return String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+  }
+  // Iqamah is a FIXED posted clock time when the masjid sets one (iqFixed),
+  // otherwise adhan + a per-prayer offset (iqOff). Adhan always comes live.
+  schedFromTimings(t, m) {
+    const c = s => (s || '').trim().slice(0, 5);
+    const fx = (m && m.iqFixed) || {};
+    const off = (m && m.iqOff) || {};
+    const iq = (key, az, dflt) => fx[key] ? fx[key] : this.addMin(az, off[key] ?? dflt);
+    return [
+      { key: 'Fajr',    arabic: 'الفجر',  azan: c(t.Fajr),    iqamah: iq('Fajr',    c(t.Fajr),    20), sun: false },
+      { key: 'Sunrise', arabic: 'الشروق', azan: c(t.Sunrise), iqamah: null,                            sun: true  },
+      { key: 'Dhuhr',   arabic: 'الظهر',  azan: c(t.Dhuhr),   iqamah: iq('Dhuhr',   c(t.Dhuhr),   12), sun: false },
+      { key: 'Asr',     arabic: 'العصر',  azan: c(t.Asr),     iqamah: iq('Asr',     c(t.Asr),     12), sun: false },
+      { key: 'Maghrib', arabic: 'المغرب', azan: c(t.Maghrib), iqamah: iq('Maghrib', c(t.Maghrib),  7), sun: false },
+      { key: 'Isha',    arabic: 'العشاء', azan: c(t.Isha),    iqamah: iq('Isha',    c(t.Isha),    12), sun: false },
+    ];
+  }
+  fetchTimes = (m) => {
+    try {
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const school = (this.props.asrSchool === 'Hanafi') ? 1 : 0; // 0 = Standard (Shafi'i), 1 = Hanafi → Asr calc
+      const url = 'https://api.aladhan.com/v1/timings/' + dd + '-' + mm + '-' + d.getFullYear() +
+        '?latitude=' + m.lat + '&longitude=' + m.lng + '&method=' + (m.method || 2) + '&school=' + school;
+      fetch(url).then(r => r.json()).then(j => {
+        if (j && j.data && j.data.timings) {
+          this.setState(s => ({ times: Object.assign({}, s.times || {}, { [m.id]: j.data.timings }) }));
+        }
+      }).catch(() => {});
+    } catch (e) {}
+  };
+
+  buildSched(id) {
+    const selected = this.masjids.find(m => m.id === id) || this.masjids[0];
+    const live = (this.state.times || {})[id];
+    const sched = live
+      ? this.schedFromTimings(live, selected)
+      : selected.sched.map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }));
+    return { selected, sched, live: !!live };
+  }
+
+  baseFor(key) {
+    const v = this.azanVoices.find(x => x.key === key) || this.azanVoices[0];
+    return v.base;
+  }
+  ensureCtx() {
+    if (!this._ctx) { const AC = window.AudioContext || window.webkitAudioContext; this._ctx = new AC(); }
+    return this._ctx;
+  }
+  stopSynth() {
+    if (this._endTimer) { clearTimeout(this._endTimer); this._endTimer = null; }
+    if (this._osc) { this._osc.forEach(o => { try { o.stop(); } catch (e) {} }); this._osc = null; }
+    if (this._master && this._ctx) {
+      try { this._master.gain.cancelScheduledValues(this._ctx.currentTime);
+            this._master.gain.setTargetAtValue(0.0001, this._ctx.currentTime, 0.04); } catch (e) {}
+    }
+  }
+  playSynth(voiceKey) {
+    let ctx;
+    try { ctx = this.ensureCtx(); } catch (e) { return; }
+    if (ctx.state === 'suspended') ctx.resume();
+    this.stopSynth();
+    if (this._el) { try { this._el.pause(); } catch (e) {} }
+    const base = this.baseFor(voiceKey);
+    // Hijaz-flavoured intervals — evokes the maqam of the call without copying any recording
+    const sc = [1, 1.0667, 1.25, 1.3333, 1.5, 1.6, 2];
+    const phrase = [
+      [0,1.0],[1,0.7],[2,1.3],[1,0.6],[0,1.5],
+      [2,0.8],[3,0.7],[2,1.3],[1,1.5],
+      [4,0.9],[3,0.7],[2,0.7],[1,1.6],
+      [0,2.2]
+    ];
+    const master = ctx.createGain();
+    master.gain.value = 0.2;
+    master.connect(ctx.destination);
+    this._master = master;
+    const oscs = [];
+    let t = ctx.currentTime + 0.12;
+    for (const [idx, dur] of phrase) {
+      const f = base * sc[idx];
+      const d = dur * 0.92;
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const o2 = ctx.createOscillator();
+      o2.type = 'triangle';
+      o2.frequency.value = f * 2;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.9, t + 0.13);
+      g.gain.setValueAtTime(0.9, Math.max(t + 0.14, t + d - 0.2));
+      g.gain.linearRampToValueAtTime(0.0001, t + d);
+      const g2 = ctx.createGain();
+      g2.gain.value = 0.18;
+      o.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+      o.start(t); o.stop(t + d + 0.05);
+      o2.start(t); o2.stop(t + d + 0.05);
+      oscs.push(o, o2);
+      t += d;
+    }
+    this._osc = oscs;
+    const totalMs = (t - ctx.currentTime + 0.35) * 1000;
+    this._endTimer = setTimeout(() => this.onAdhanEnd(), totalMs);
+  }
+  onAdhanEnd() {
+    this.stopSynth();
+    this.setState({ azanPlaying: false, azanEnded: true, screen: 'dua' });
+  }
+  currentVoice() { return this.state.azanVoiceSel ?? this.props.azanVoice ?? 'Egypt'; }
+  ensureEl() {
+    if (!this._el) {
+      const a = new Audio();
+      a.addEventListener('ended', () => this.onAdhanEnd());
+      a.addEventListener('error', () => {
+        if (this._fallbackOnErr) { this._fallbackOnErr = false; this.playSynth(this.currentVoice()); this.setState({ azanPlaying: true }); }
+      });
+      this._el = a;
+    }
+    return this._el;
+  }
+  stopAll() {
+    this.stopSynth();
+    if (this._el) { try { this._el.pause(); } catch (e) {} }
+  }
+  // A voice resolves to a real file when one exists (user import, or bundled
+  // /audio city tracks once added); otherwise null → synthesized fallback.
+  srcFor(key) {
+    if (key === 'custom') return this.state.customAudio || null;
+    const v = this.azanVoices.find(x => x.key === key);
+    return (v && v.file) || null;
+  }
+  playCurrent() {
+    const key = this.currentVoice();
+    const src = this.srcFor(key);
+    if (src) {
+      const a = this.ensureEl();
+      this.stopSynth();
+      a.src = src; this._fallbackOnErr = true;
+      a.play().then(() => this.setState({ azanPlaying: true, azanEnded: false }))
+              .catch(() => { this._fallbackOnErr = false; this.playSynth(key); this.setState({ azanPlaying: true, azanEnded: false }); });
+    } else {
+      this.playSynth(key);
+      this.setState({ azanPlaying: true, azanEnded: false });
+    }
+  }
+  toggleAzan = () => {
+    if (this.state.azanPlaying) { this.stopAll(); this.setState({ azanPlaying: false }); return; }
+    this.playCurrent();
+  };
+  selectVoice(key) {
+    this.setState({ azanVoiceSel: key, azanEnded: false }, () => { if (this.state.azanPlaying) this.playCurrent(); });
+  }
+  triggerImport = () => {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'audio/*'; inp.style.display = 'none';
+    inp.addEventListener('change', (e) => this.onImport(e));
+    document.body.appendChild(inp);
+    inp.click();
+    setTimeout(() => { try { document.body.removeChild(inp); } catch (e) {} }, 60000);
+  };
+  onImport = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const data = r.result;
+      try { localStorage.setItem('pc_custom_audio', data); localStorage.setItem('pc_custom_name', f.name); } catch (err) {}
+      this.setState({ customAudio: data, customName: f.name, azanVoiceSel: 'custom', azanEnded: false });
+    };
+    r.readAsDataURL(f);
+  };
+  clearCustom = () => {
+    try { localStorage.removeItem('pc_custom_audio'); localStorage.removeItem('pc_custom_name'); } catch (e) {}
+    this.setState(s => ({ customAudio: null, customName: '', azanVoiceSel: s.azanVoiceSel === 'custom' ? null : s.azanVoiceSel }));
+  };
+
+  go = (s) => this.setState({ screen: s });
+  openAzan = (name) => {
+    const upd = { screen: 'azan', azanScreenPrayer: name, azanEnded: false };
+    if (name === 'Fajr' && this.state.azanVoiceSel == null) {
+      upd.azanVoiceSel = 'Fajr';
+    }
+    this.setState(upd);
+  };
+  selectMasjid = (id) => this.setState({ selectedId: id, screen: 'home' });
+
+  checkAzanTrigger(now) {
+    if (now.getSeconds() !== 0) return;
+    const { sched } = this.buildSched(this.state.selectedId);
+    const hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    const hit = sched.find(p => !p.sun && p.azan === hhmm);
+    if (hit && this._lastFired !== hhmm) {
+      this._lastFired = hhmm;
+      this.openAzan(hit.key);
+      const voice = hit.key === 'Fajr' ? 'Fajr' : this.currentVoice();
+      this.playSynth(voice);
+      this.setState({ azanPlaying: true });
+    }
+  }
+
+  renderVals() {
+    const now = this.state.now;
+    const pad = n => String(n).padStart(2, '0');
+    const use24 = this.props.use24Hour ?? false;
+    const showSeconds = this.props.showSeconds ?? true;
+    const screen = this.state.screen;
+
+    const { selected, sched, live } = this.buildSched(this.state.selectedId);
+    const masjidName = selected.name;
+    const timesSource = live ? 'Live times · ISNA method' : 'Sample schedule · offline';
+
+    const toMin = s => { const p = (s || '00:00').split(':'); return (+p[0]) * 60 + (+p[1]); };
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const nowSec = now.getSeconds();
+
+    const prayersOnly = sched.filter(p => !p.sun);
+    let next = prayersOnly.find(p => toMin(p.azan) > nowMin);
+    let tomorrow = false;
+    if (!next) { next = prayersOnly[0]; tomorrow = true; }
+    let totalSec = (toMin(next.azan) + (tomorrow ? 1440 : 0) - nowMin) * 60 - nowSec;
+    if (totalSec < 0) totalSec = 0;
+    const ch = Math.floor(totalSec / 3600), cm = Math.floor((totalSec % 3600) / 60), cs = totalSec % 60;
+    const countdown = ch > 0 ? (ch + 'h ' + pad(cm) + 'm ' + pad(cs) + 's') : (cm + 'm ' + pad(cs) + 's');
+
+    let active = null;
+    for (const p of prayersOnly) { if (toMin(p.azan) <= nowMin) active = p; }
+    if (!active) active = prayersOnly[prayersOnly.length - 1];
+
+    const gold = '#e0bd76';
+    const prayers = sched.map(p => {
+      const nx = p.key === next.key;
+      const isActive = active && p.key === active.key && !nx;
+      return {
+        key: p.key, arabic: p.arabic,
+        azanDisp: this.fmt(toMin(p.azan), use24),
+        iqamahDisp: p.iqamah ? this.fmt(toMin(p.iqamah), use24) : '—',
+        isNext: nx, dim: p.sun ? '0.6' : '1',
+        hlDark: nx ? 'rgba(224,189,118,0.14)' : (isActive ? 'rgba(255,255,255,0.04)' : 'transparent'),
+        accentDark: nx ? gold : (p.sun ? 'rgba(245,239,225,0.6)' : 'rgba(245,239,225,0.92)'),
+        timeAccentDark: nx ? gold : 'rgba(245,239,225,0.85)',
+      };
+    });
+
+    const h = now.getHours();
+    const hh = use24 ? h : (h % 12 || 12);
+    const clockMain = (use24 ? pad(hh) : String(hh)) + ':' + pad(now.getMinutes());
+    const clockSec = pad(now.getSeconds());
+    const clockAmPm = use24 ? '' : (h < 12 ? 'AM' : 'PM');
+
+    const gregShort = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(now);
+    let hijri = '';
+    try { hijri = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(now); } catch (e) { hijri = ''; }
+
+    const jL = (selected.jummahs && selected.jummahs.length) ? selected.jummahs : [selected.jummah];
+    const jummahList = jL.map((tt, i) => ({
+      label: jL.length > 1 ? ('JUMU\'AH ' + (i + 1)) : "JUMU'AH",
+      disp: this.fmt(toMin(tt), use24),
+    }));
+
+    // masjid picker view
+    const selId = this.state.selectedId;
+    const masjidsView = this.masjids.map(m => ({
+      name: m.name, address: m.address, distance: m.distance,
+      jummahLabel: this.fmt(toMin(m.jummah), use24),
+      isSelected: m.id === selId,
+      onSelect: () => this.selectMasjid(m.id),
+      cardBorder: m.id === selId ? '#e0bd76' : 'rgba(224,189,118,0.2)',
+      cardBg: m.id === selId ? 'rgba(224,189,118,0.08)' : 'rgba(255,255,255,0.015)',
+      nameColor: m.id === selId ? '#e0bd76' : '#f5efe1',
+      distBg: m.id === selId ? 'rgba(224,189,118,0.18)' : 'rgba(245,239,225,0.06)',
+      distColor: m.id === selId ? '#e0bd76' : 'rgba(245,239,225,0.8)',
+    }));
+
+    // adhan screen
+    const azanKey = this.state.azanScreenPrayer || next.key;
+    const apRow = sched.find(p => p.key === azanKey) || prayersOnly[0];
+    const voiceKey = this.currentVoice();
+    const azanVoices = this.azanVoices.map(v => ({
+      label: v.label,
+      onSelect: () => this.selectVoice(v.key),
+      border: v.key === voiceKey ? '#e0bd76' : 'rgba(224,189,118,0.3)',
+      bg: v.key === voiceKey ? 'rgba(224,189,118,0.16)' : 'transparent',
+      color: v.key === voiceKey ? '#e0bd76' : 'rgba(245,239,225,0.7)',
+    }));
+    const hasCustom = !!this.state.customAudio;
+    if (hasCustom) {
+      const sel = voiceKey === 'custom';
+      azanVoices.push({
+        label: 'My Audio',
+        onSelect: () => this.selectVoice('custom'),
+        border: sel ? '#e0bd76' : 'rgba(224,189,118,0.3)',
+        bg: sel ? 'rgba(224,189,118,0.16)' : 'transparent',
+        color: sel ? '#e0bd76' : 'rgba(245,239,225,0.7)',
+      });
+    }
+    const playing = this.state.azanPlaying;
+    const voiceLabel = voiceKey === 'custom' ? 'your audio' : ((this.azanVoices.find(v => v.key === voiceKey) || {}).label || voiceKey);
+    const azanStatus = this.state.azanEnded ? "Azan complete · view the du'ā →"
+      : (playing ? 'The call to prayer is playing' : 'Tap play · ' + voiceLabel + ' azan');
+
+    const dim = 'rgba(245,239,225,0.5)';
+    return {
+      // screens
+      isSplash: screen === 'splash',
+      idTagName: 'Designed by Your Name',
+      idTagMeta: 'Student ID · 0000000',
+      isHome: screen === 'home', isMasjid: screen === 'masjid', isAzan: screen === 'azan', isDua: screen === 'dua',
+      showNav: screen === 'home' || screen === 'masjid',
+      goHome: () => this.go('home'), goMasjid: () => this.go('masjid'),
+      goAzan: () => this.go('azan'), goDua: () => this.go('dua'),
+      goAzanNav: () => this.openAzan(next.key),
+      navColH: screen === 'home' ? '#e0bd76' : dim,
+      navColM: screen === 'masjid' ? '#e0bd76' : dim,
+      navColA: dim,
+      // home
+      masjidName, gregShort, hijri,
+      clockMain, clockSec, clockAmPm, showSeconds,
+      nextName: next.key, nextArabic: next.arabic, countdown,
+      prayers, jummahList,
+      // picker
+      masjids: masjidsView, locStatus: this.state.locStatus, timesSource, detectLocation: this.detectLocation,
+      // adhan
+      azanName: apRow.key, azanArabic: apRow.arabic,
+      azanVoices, toggleAzan: this.toggleAzan,
+      triggerImport: this.triggerImport, clearCustom: this.clearCustom,
+      hasCustom, customName: this.state.customName,
+      importLabel: hasCustom ? 'Replace audio' : 'Import audio',
+      azanIsPlaying: playing, azanNotPlaying: !playing,
+      azanBtnLabel: playing ? 'Pause' : 'Play Azan',
+      wavePlay: playing ? 'running' : 'paused',
+      azanStatus, azanStatusColor: this.state.azanEnded ? '#e0bd76' : 'rgba(245,239,225,0.5)',
+    };
+  }
+
+  detectLocation = () => {
+    this.setState({ locStatus: 'Locating…' });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => this.setState({ locStatus: 'Located · masjids near you' }),
+        () => this.setState({ locStatus: 'Showing Milton, Ontario' }),
+        { timeout: 5000 }
+      );
+    } else {
+      this.setState({ locStatus: 'Showing Milton, Ontario' });
+    }
+  };
+}
+</script>
+</body>
+</html>
