@@ -1,0 +1,21 @@
+{
+  "name": "Salaah Clock",
+  "short_name": "Salaah Clock",
+  "description": "Sync with your local masjid and never miss an adhan or salah.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b3a2b",
+  "theme_color": "#0b3a2b",
+  "categories": ["lifestyle", "utilities"],
+  "lang": "en",
+  "icons": [
+    { "src": "/icons/icon-192.png",      "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png",      "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "screenshots": [
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "form_factor": "narrow" }
+  ]
+}
