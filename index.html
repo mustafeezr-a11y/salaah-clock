@@ -395,10 +395,11 @@
           <!-- ASR CALCULATION -->
           <div style="font:10px/1 Marcellus,serif; letter-spacing:2.5px; color:rgba(224,189,118,.7); text-transform:uppercase; padding-left:2px; margin-top:4px;">Asr Prayer</div>
           <div style="border:1px solid rgba(224,189,118,.22); border-radius:14px; padding:18px; background:rgba(224,189,118,.04);">
-            <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px;">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:5px;">
               <div style="font:17px/1 Marcellus,serif; color:#f5efe1;">Asr Calculation</div>
-              <div style="font:600 14px/1 'Cormorant Garamond',serif; color:#e0bd76;">{{ asrCurrentTime }}</div>
+              <div style="font:600 18px/1 'Cormorant Garamond',serif; color:#e0bd76;">{{ asrCurrentTime }}</div>
             </div>
+            <div style="font:500 11px/1 'Cormorant Garamond',serif; color:rgba(224,189,118,.55); margin-bottom:12px; font-style:italic;">{{ asrRefreshNote }}</div>
             <div style="display:flex; gap:8px; margin-bottom:12px;">
               <div onClick="{{ setAsrStd }}" style="cursor:pointer; flex:1; padding:11px 8px; border-radius:10px; text-align:center; border:1.5px solid {{ asrStdBorder }}; background:{{ asrStdBg }};">
                 <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ asrStdCol }};">STANDARD</div>
@@ -581,7 +582,7 @@ class Component extends DCLogic {
     showInstallBanner: false, isIOS: false, isInstalled: false,
     userLat: null, userLng: null, geoMasjids: [], locLoading: false,
     cityInput: '', citySearching: false,
-    asrMethod: 'Standard', asrOffset: 0,
+    asrMethod: 'Standard', asrOffset: 0, asrRefreshing: false, timesLoading: false,
     notifPrefs: {
       Fajr:    { audio: true,  visual: true },
       Dhuhr:   { audio: true,  visual: true },
@@ -907,7 +908,33 @@ class Component extends DCLogic {
     }
     this.setState(upd);
   };
-  selectMasjid = (id) => this.setState({ selectedId: id, screen: 'home' });
+  selectMasjid = (id) => {
+    this.setState({ selectedId: id, screen: 'home', timesLoading: true });
+    const m = this.getMasjidList().find(ms => ms.id === id);
+    if (m) {
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const school = this.state.asrMethod === 'Hanafi' ? 1 : 0;
+      const url = 'https://api.aladhan.com/v1/timings/' + dd + '-' + mm + '-' + d.getFullYear() +
+        '?latitude=' + m.lat + '&longitude=' + m.lng + '&method=2&school=' + school;
+      fetch(url)
+        .then(r => r.json())
+        .then(j => {
+          if (j && j.data && j.data.timings) {
+            this.setState(s => ({
+              times: Object.assign({}, s.times || {}, { [id]: j.data.timings }),
+              timesLoading: false
+            }));
+          } else {
+            this.setState({ timesLoading: false });
+          }
+        })
+        .catch(() => this.setState({ timesLoading: false }));
+    } else {
+      this.setState({ timesLoading: false });
+    }
+  };
 
   checkAzanTrigger(now) {
     if (now.getSeconds() !== 0) return;
@@ -1086,6 +1113,8 @@ class Component extends DCLogic {
       asrOffset: this.state.asrOffset,
       asrOffsetLabel: this.state.asrOffset === 0 ? 'No adjustment' : (this.state.asrOffset > 0 ? '+' + this.state.asrOffset + ' min' : this.state.asrOffset + ' min'),
       asrCurrentTime: (() => { const ar = sched.find(p => p.key === 'Asr'); return ar && ar.azan !== '--:--' ? this.fmt(toMin(ar.azan), use24) : '--:--'; })(),
+      asrRefreshing: this.state.asrRefreshing,
+      asrRefreshNote: this.state.asrRefreshing ? 'Updating Asr time…' : 'Live from AlAdhan API',
       asrStdSel: this.state.asrMethod === 'Standard',
       asrHanSel: this.state.asrMethod === 'Hanafi',
       asrStdBorder: this.state.asrMethod === 'Standard' ? '#e0bd76' : 'rgba(224,189,118,.25)',
@@ -1148,7 +1177,9 @@ class Component extends DCLogic {
       masjids: masjidsView, locStatus: this.state.locStatus,
       locLoading: this.state.locLoading,
       locBtnLabel: this.state.locLoading ? 'Finding…' : 'Locate',
-      timesSource, detectLocation: this.detectLocation,
+      timesSource: this.state.timesLoading ? 'Fetching prayer times…' : timesSource,
+      timesLoading: this.state.timesLoading,
+      detectLocation: this.detectLocation,
       cityInput: this.state.cityInput,
       onCityInput: e => this.setState({ cityInput: e.target.value }),
       onCityKeyDown: e => { if (e.key === 'Enter') this.searchByCity(this.state.cityInput); },
@@ -1190,50 +1221,73 @@ class Component extends DCLogic {
   };
 
   fetchNearbyMasjids = (lat, lng) => {
-    const q = `[out:json][timeout:20];(node["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng}););out center 15;`;
-    fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q })
-      .then(r => r.json())
-      .then(data => {
-        const els = data.elements || [];
-        const hav = (a1,o1,a2,o2) => {
-          const R=6371, dA=(a2-a1)*Math.PI/180, dO=(o2-o1)*Math.PI/180;
-          const s = Math.sin(dA/2)**2 + Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dO/2)**2;
-          return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+    const q = `[out:json][timeout:18];(node["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng}););out center 12;`;
+    const endpoints = [
+      'https://overpass-api.de/api/interpreter',
+      'https://lz4.overpass-api.de/api/interpreter',
+      'https://z.overpass-api.de/api/interpreter'
+    ];
+    const hav = (a1,o1,a2,o2) => {
+      const R=6371, dA=(a2-a1)*Math.PI/180, dO=(o2-o1)*Math.PI/180;
+      const sdA=Math.sin(dA/2), sdO=Math.sin(dO/2);
+      const s = sdA*sdA + Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*sdO*sdO;
+      return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+    };
+    const processData = (data) => {
+      const els = (data && data.elements) || [];
+      const geo = els.map((el, i) => {
+        const elLat = el.lat || (el.center && el.center.lat) || lat;
+        const elLng = el.lon || (el.center && el.center.lon) || lng;
+        const tags = el.tags || {};
+        const name = tags['name:en'] || tags.name || tags['name:ar'] || 'Mosque';
+        const city = tags['addr:city'] || tags['addr:suburb'] || tags['addr:town'] || '';
+        const hno  = tags['addr:housenumber'] ? tags['addr:housenumber'] + ' ' : '';
+        const street = tags['addr:street'] ? hno + tags['addr:street'] : '';
+        const dist = hav(lat, lng, elLat, elLng);
+        const distMi = (dist * 0.621371).toFixed(1);
+        return {
+          id: 'geo_' + (el.id || i),
+          name, address: [street, city].filter(Boolean).join(', ') || 'Nearby mosque',
+          distance: distMi, lat: elLat, lng: elLng,
+          method: 2, jummah: '13:00', sched: []
         };
-        const geo = els.map((el, i) => {
-          const elLat = el.lat || (el.center && el.center.lat) || lat;
-          const elLng = el.lon || (el.center && el.center.lon) || lng;
-          const tags = el.tags || {};
-          const name = tags['name:en'] || tags.name || tags['name:ar'] || 'Mosque';
-          const city = tags['addr:city'] || tags['addr:suburb'] || tags['addr:town'] || '';
-          const hno  = tags['addr:housenumber'] ? tags['addr:housenumber'] + ' ' : '';
-          const street = tags['addr:street'] ? hno + tags['addr:street'] : '';
-          const dist = hav(lat, lng, elLat, elLng);
-          const distMi = (dist * 0.621371).toFixed(1);
-          return {
-            id: 'geo_' + (el.id || i),
-            name, address: [street, city].filter(Boolean).join(', ') || 'Nearby mosque',
-            distance: distMi, lat: elLat, lng: elLng,
-            method: 2, jummah: '13:00', sched: []
-          };
-        }).sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance)).slice(0, 12);
-
-        if (!geo.length) {
-          this.setState({ locStatus: 'No mosques found within 15 km · showing Milton', locLoading: false });
-          return;
-        }
-        this.setState({
-          geoMasjids: geo, selectedId: geo[0].id, times: {},
-          locStatus: geo.length + ' mosques found near you', locLoading: false
-        });
-        geo.forEach(m => this.fetchTimes(m));
-      })
-      .catch(() => this.setState({ locStatus: 'Could not reach location service · check connection', locLoading: false }));
+      }).sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance)).slice(0, 12);
+      if (!geo.length) {
+        this.setState({ locStatus: 'No mosques found · type your city below', locLoading: false });
+        return;
+      }
+      this.setState({ geoMasjids: geo, selectedId: geo[0].id, times: {},
+        locStatus: geo.length + ' mosques found near you', locLoading: false });
+      geo.forEach(m => this.fetchTimes(m));
+    };
+    const tryEndpoint = (idx) => {
+      if (idx >= endpoints.length) {
+        this.setState({ locStatus: 'Auto-detect failed · type your city below', locLoading: false });
+        return;
+      }
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => { ctrl.abort(); }, 14000);
+      fetch(endpoints[idx], { method: 'POST', body: q, signal: ctrl.signal })
+        .then(r => { clearTimeout(timer); return r.json(); })
+        .then(data => processData(data))
+        .catch(() => { clearTimeout(timer); tryEndpoint(idx + 1); });
+    };
+    tryEndpoint(0);
   };
 
   setAsrMethod = (method) => {
-    this.setState({ asrMethod: method, times: {} }, () => {
-      this.getMasjidList().forEach(m => this.fetchTimes(m));
+    // Don't clear times — keep old values visible while the new fetch runs.
+    // Asr will update in-place as soon as AlAdhan responds with the new school value.
+    this.setState({ asrMethod: method, asrRefreshing: true }, () => {
+      const pending = this.getMasjidList();
+      let done = 0;
+      pending.forEach(m => {
+        const orig = this.fetchTimes(m);
+        // Mark refreshing done after first response lands
+        const check = () => { done++; if (done >= pending.length) this.setState({ asrRefreshing: false }); };
+        // Minimal timeout in case fetch fails silently
+        setTimeout(check, 6000);
+      });
     });
     try { localStorage.setItem('pc_asr_method', method); } catch(e) {}
   };
