@@ -181,7 +181,7 @@
                 <div style="position:absolute; inset:5px; background:#0e4536; border-radius:50%;"></div>
               </div>
               <div style="flex:1 1 auto; font:15px/1.3 'Cormorant Garamond',serif; color:rgba(245,239,225,.85);">{{ locStatus }}</div>
-              <div onClick="{{ detectLocation }}" style="cursor:pointer; font:10px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase; color:#0b3a2b; background:#e0bd76; padding:9px 13px; border-radius:6px;" style-hover="opacity:.85;">Locate</div>
+              <div onClick="{{ detectLocation }}" style="cursor:pointer; font:10px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase; color:#0b3a2b; background:#e0bd76; padding:9px 13px; border-radius:6px; opacity:{{ locBtnOpacity }};" style-hover="opacity:.85;">{{ locBtnLabel }}</div>
             </div>
             <div style="display:flex; align-items:center; gap:7px; padding-left:4px;">
               <div style="width:6px; height:6px; border-radius:50%; background:#7fd1a8; animation:softGlow 2s ease-in-out infinite;"></div>
@@ -295,12 +295,43 @@
     <sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
       <div data-screen-label="App — Alerts" style="flex:1 1 auto; min-height:0; display:flex; flex-direction:column; animation:scrIn .35s ease; overflow-y:auto;">
         <div style="padding:22px 20px 10px; flex:0 0 auto;">
-          <div style="font:11px/1 Marcellus,serif; letter-spacing:3px; color:#e0bd76; text-transform:uppercase;">Settings</div>
-          <div style="font:28px/1.1 Marcellus,serif; color:#f5efe1; margin-top:6px;">Prayer Alerts</div>
-          <div style="font:500 14px/1.5 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); margin-top:6px;">Control audio adhan and visual reminders for each prayer.</div>
+          <div style="font:11px/1 Marcellus,serif; letter-spacing:3px; color:#e0bd76; text-transform:uppercase;">Salaah Clock</div>
+          <div style="font:28px/1.1 Marcellus,serif; color:#f5efe1; margin-top:6px;">Settings</div>
         </div>
 
         <div style="padding:10px 20px 20px; display:flex; flex-direction:column; gap:10px; flex:1 1 auto;">
+
+          <!-- DISPLAY SECTION -->
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2.5px; color:rgba(224,189,118,.7); text-transform:uppercase; padding-left:2px; margin-top:4px;">Display</div>
+          <div style="border:1px solid rgba(224,189,118,.22); border-radius:14px; padding:14px 18px; background:rgba(224,189,118,.04); display:flex; flex-direction:column; gap:10px;">
+            <!-- 24-hour clock -->
+            <div onClick="{{ toggleUse24 }}" style="cursor:pointer; border-radius:12px; padding:12px 14px; background:{{ use24CardBg }}; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ use24Col }};">24-HOUR CLOCK</div>
+                </div>
+                <div style="width:36px; height:21px; border-radius:11px; background:{{ use24TrackBg }}; position:relative; flex:0 0 auto;">
+                  <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ use24Col }}; left:{{ use24DotLeft }};"></div>
+                </div>
+              </div>
+              <div style="font:600 12px/1 'Cormorant Garamond',serif; color:{{ use24Col }};">{{ use24Label }}</div>
+            </div>
+            <!-- Show seconds -->
+            <div onClick="{{ toggleShowSec }}" style="cursor:pointer; border-radius:12px; padding:12px 14px; background:{{ showSecCardBg }}; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ showSecCol }};">SHOW SECONDS</div>
+                </div>
+                <div style="width:36px; height:21px; border-radius:11px; background:{{ showSecTrackBg }}; position:relative; flex:0 0 auto;">
+                  <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ showSecCol }}; left:{{ showSecDotLeft }};"></div>
+                </div>
+              </div>
+              <div style="font:600 12px/1 'Cormorant Garamond',serif; color:{{ showSecCol }};">{{ showSecLabel }}</div>
+            </div>
+          </div>
+
+          <!-- NOTIFICATIONS SECTION -->
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2.5px; color:rgba(224,189,118,.7); text-transform:uppercase; padding-left:2px; margin-top:4px;">Prayer Alerts</div>
           <sc-for list="{{ notifPrayers }}" as="p" hint-placeholder-count="5">
             <div style="border:1px solid rgba(224,189,118,.22); border-radius:14px; padding:16px 18px; background:rgba(224,189,118,.04);">
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
@@ -321,13 +352,13 @@
                       </div>
                       <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ p.audioCol }};">ADHAN</div>
                     </div>
-                    <div style="width:36px; height:21px; border-radius:11px; background:{{ p.audioOn ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)' }}; position:relative; flex:0 0 auto;">
-                      <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ p.audioCol }}; left:{{ p.audioOn ? '18px' : '3px' }};"></div>
+                    <div style="width:36px; height:21px; border-radius:11px; background:{{ p.audioTrackBg }}; position:relative; flex:0 0 auto;">
+                      <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ p.audioCol }}; left:{{ p.audioDotLeft }};"></div>
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <div style="width:8px; height:8px; border-radius:50%; background:{{ p.audioOn ? '#0e4536' : 'rgba(245,239,225,.3)' }};"></div>
-                    <div style="font:600 13px/1 'Cormorant Garamond',serif; color:{{ p.audioCol }};">{{ p.audioOn ? 'ON — Plays adhan audio' : 'OFF — Silent at prayer time' }}</div>
+                    <div style="width:8px; height:8px; border-radius:50%; background:{{ p.audioBgDot }};"></div>
+                    <div style="font:600 13px/1 'Cormorant Garamond',serif; color:{{ p.audioCol }};">{{ p.audioLabel }}</div>
                   </div>
                 </div>
                 <!-- Visual toggle -->
@@ -337,18 +368,52 @@
                       <div style="width:12px; height:12px; border-radius:2px; border:2px solid {{ p.visualCol }};"></div>
                       <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ p.visualCol }};">POPUP</div>
                     </div>
-                    <div style="width:36px; height:21px; border-radius:11px; background:{{ p.visualOn ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)' }}; position:relative; flex:0 0 auto;">
-                      <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ p.visualCol }}; left:{{ p.visualOn ? '18px' : '3px' }};"></div>
+                    <div style="width:36px; height:21px; border-radius:11px; background:{{ p.visualTrackBg }}; position:relative; flex:0 0 auto;">
+                      <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ p.visualCol }}; left:{{ p.visualDotLeft }};"></div>
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <div style="width:8px; height:8px; border-radius:50%; background:{{ p.visualOn ? '#0e4536' : 'rgba(245,239,225,.3)' }};"></div>
-                    <div style="font:600 13px/1 'Cormorant Garamond',serif; color:{{ p.visualCol }};">{{ p.visualOn ? 'ON — Shows reminder' : 'OFF — No popup' }}</div>
+                    <div style="width:8px; height:8px; border-radius:50%; background:{{ p.visualBgDot }};"></div>
+                    <div style="font:600 13px/1 'Cormorant Garamond',serif; color:{{ p.visualCol }};">{{ p.visualLabel }}</div>
                   </div>
                 </div>
               </div>
             </div>
           </sc-for>
+
+          <!-- ASR CALCULATION -->
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2.5px; color:rgba(224,189,118,.7); text-transform:uppercase; padding-left:2px; margin-top:4px;">Asr Prayer</div>
+          <div style="border:1px solid rgba(224,189,118,.22); border-radius:14px; padding:18px; background:rgba(224,189,118,.04);">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px;">
+              <div style="font:17px/1 Marcellus,serif; color:#f5efe1;">Asr Calculation</div>
+              <div style="font:600 14px/1 'Cormorant Garamond',serif; color:#e0bd76;">{{ asrCurrentTime }}</div>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <div onClick="{{ setAsrStd }}" style="cursor:pointer; flex:1; padding:11px 8px; border-radius:10px; text-align:center; border:1.5px solid {{ asrStdBorder }}; background:{{ asrStdBg }};">
+                <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ asrStdCol }};">STANDARD</div>
+                <div style="font:500 11px/1.4 'Cormorant Garamond',serif; color:{{ asrStdTxt }}; margin-top:5px;">Shafi'i · Maliki · Hanbali</div>
+              </div>
+              <div onClick="{{ setAsrHan }}" style="cursor:pointer; flex:1; padding:11px 8px; border-radius:10px; text-align:center; border:1.5px solid {{ asrHanBorder }}; background:{{ asrHanBg }};">
+                <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ asrHanCol }};">HANAFI</div>
+                <div style="font:500 11px/1.4 'Cormorant Garamond',serif; color:{{ asrHanTxt }}; margin-top:5px;">Shadow twice object height</div>
+              </div>
+            </div>
+            <div style="background:rgba(245,239,225,.05); border-radius:10px; padding:12px 14px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <div>
+                  <div style="font:10px/1 Marcellus,serif; letter-spacing:1.5px; color:rgba(245,239,225,.5); text-transform:uppercase;">Masjid Time Offset</div>
+                  <div style="font:600 14px/1 'Cormorant Garamond',serif; color:#e0bd76; margin-top:5px;">{{ asrOffsetLabel }}</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                  <div onClick="{{ asrOffMinus5 }}" style="cursor:pointer; width:34px; height:34px; border-radius:8px; background:rgba(224,189,118,.1); border:1px solid rgba(224,189,118,.25); display:flex; align-items:center; justify-content:center; font:600 12px/1 'Cormorant Garamond',serif; color:#e0bd76;">−5</div>
+                  <div onClick="{{ asrOffMinus }}" style="cursor:pointer; width:34px; height:34px; border-radius:8px; background:rgba(224,189,118,.1); border:1px solid rgba(224,189,118,.25); display:flex; align-items:center; justify-content:center; font:600 20px/1 'Cormorant Garamond',serif; color:#e0bd76;">−</div>
+                  <div onClick="{{ resetAsrOff }}" style="cursor:pointer; width:34px; height:34px; border-radius:8px; background:rgba(224,189,118,.06); border:1px solid rgba(224,189,118,.18); display:flex; align-items:center; justify-content:center; font:9px/1.2 Marcellus,serif; color:rgba(245,239,225,.45); text-align:center;">RST</div>
+                  <div onClick="{{ asrOffPlus }}" style="cursor:pointer; width:34px; height:34px; border-radius:8px; background:rgba(224,189,118,.1); border:1px solid rgba(224,189,118,.25); display:flex; align-items:center; justify-content:center; font:600 20px/1 'Cormorant Garamond',serif; color:#e0bd76;">+</div>
+                  <div onClick="{{ asrOffPlus5 }}" style="cursor:pointer; width:34px; height:34px; border-radius:8px; background:rgba(224,189,118,.1); border:1px solid rgba(224,189,118,.25); display:flex; align-items:center; justify-content:center; font:600 12px/1 'Cormorant Garamond',serif; color:#e0bd76;">+5</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div style="padding:13px 15px; border-radius:10px; background:rgba(224,189,118,.07); border:1px solid rgba(224,189,118,.18); font:500 13px/1.55 'Cormorant Garamond',serif; color:rgba(245,239,225,.6);">
             Audio OFF → silent at prayer time. Visual OFF → no popup reminder. Both OFF → fully silent for that prayer.
@@ -407,12 +472,11 @@
           <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Adhan</div>
         </div>
         <div onClick="{{ goAlerts }}" style="cursor:pointer; flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; padding:14px 0 16px; color:{{ navColN }};">
-          <div style="position:relative; width:20px; height:21px;">
-            <div style="position:absolute; top:2px; left:2px; right:2px; bottom:4px; border:2px solid currentColor; border-radius:6px 6px 3px 3px;"></div>
-            <div style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:8px; height:4px; border:2px solid currentColor; border-top:none; border-radius:0 0 4px 4px;"></div>
-            <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:currentColor;"></div>
-          </div>
-          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Alerts</div>
+          <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.5 1.5l-.6 2.1A6.5 6.5 0 006.2 4.9L4 4.2 1.5 7.8l1.7 1.5a6.5 6.5 0 000 2.4L1.5 13.2 4 16.8l2.2-.7a6.5 6.5 0 001.7 1.3l.6 2.1h5l.6-2.1a6.5 6.5 0 001.7-1.3l2.2.7 2.5-3.6-1.7-1.5a6.5 6.5 0 000-2.4l1.7-1.5L19.5 4.2l-2.2.7a6.5 6.5 0 00-1.7-1.3L15 1.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="10.5" cy="10.5" r="2.8" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <div style="font:9px/1 Marcellus,serif; letter-spacing:1.5px; text-transform:uppercase;">Settings</div>
         </div>
       </div>
     </sc-if>
@@ -493,13 +557,7 @@
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{
-  &quot;$preview&quot;: { &quot;width&quot;: 560, &quot;height&quot;: 1040 },
-  &quot;use24Hour&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Clock&quot; },
-  &quot;showSeconds&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Clock&quot; },
-  &quot;asrSchool&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Standard&quot;, &quot;options&quot;: [&quot;Standard&quot;, &quot;Hanafi&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Prayer times&quot; },
-  &quot;azanVoice&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Egypt&quot;, &quot;options&quot;: [&quot;Egypt&quot;, &quot;Makkah&quot;, &quot;Madinah&quot;, &quot;Fajr&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Adhan&quot; }
-}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:560,&quot;height&quot;:1040},&quot;use24Hour&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Clock&quot;},&quot;showSeconds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Clock&quot;},&quot;asrSchool&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Hanafi&quot;,&quot;options&quot;:[&quot;Standard&quot;,&quot;Hanafi&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prayer times&quot;},&quot;azanVoice&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Madinah&quot;,&quot;options&quot;:[&quot;Egypt&quot;,&quot;Makkah&quot;,&quot;Madinah&quot;,&quot;Fajr&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Adhan&quot;}}">
 class Component extends DCLogic {
   state = {
     now: new Date(), selectedId: 'iccm',
@@ -510,6 +568,8 @@ class Component extends DCLogic {
     use24: null, showSec: null, refIdx: 0,
     showQuran: true, showHadith: true, showQuotes: true,
     showInstallBanner: false, isIOS: false, isInstalled: false,
+    userLat: null, userLng: null, geoMasjids: [], locLoading: false,
+    asrMethod: 'Standard', asrOffset: 0,
     notifPrefs: {
       Fajr:    { audio: true,  visual: true },
       Dhuhr:   { audio: true,  visual: true },
@@ -548,7 +608,7 @@ class Component extends DCLogic {
   componentDidUpdate(prevProps) {
     if (prevProps.asrSchool !== this.props.asrSchool) {
       this.setState({ times: {} });
-      this.masjids.forEach(m => this.fetchTimes(m));
+      this.getMasjidList().forEach(m => this.fetchTimes(m));
     }
   }
   componentDidMount() {
@@ -566,6 +626,14 @@ class Component extends DCLogic {
       if (d) this.setState({ customAudio: d, customName: n || 'My audio' });
       const np = localStorage.getItem('pc_notif_prefs');
       if (np) this.setState({ notifPrefs: JSON.parse(np) });
+      const am = localStorage.getItem('pc_asr_method');
+      if (am) this.setState({ asrMethod: am });
+      const ao = localStorage.getItem('pc_asr_offset');
+      if (ao !== null && ao !== '') this.setState({ asrOffset: parseInt(ao) || 0 });
+      const u24 = localStorage.getItem('pc_use24');
+      if (u24 !== null) this.setState({ use24: u24 === 'true' });
+      const ss = localStorage.getItem('pc_showsec');
+      if (ss !== null) this.setState({ showSec: ss === 'true' });
     } catch (e) {}
     // PWA install detection
     const ua = navigator.userAgent;
@@ -581,6 +649,7 @@ class Component extends DCLogic {
     }
     document.addEventListener('pwa-installed', () => this.setState({ showInstallBanner: false, isInstalled: true }));
     this.masjids.forEach(m => this.fetchTimes(m));
+    setTimeout(() => this.detectLocation(), 1200);
   }
   componentWillUnmount() {
     if (this._t) clearInterval(this._t);
@@ -623,7 +692,7 @@ class Component extends DCLogic {
       const d = new Date();
       const dd = String(d.getDate()).padStart(2, '0');
       const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const school = (this.props.asrSchool === 'Hanafi') ? 1 : 0; // 0 = Standard (Shafi'i), 1 = Hanafi → Asr calc
+      const school = (this.state.asrMethod === 'Hanafi' || this.props.asrSchool === 'Hanafi') ? 1 : 0;
       const url = 'https://api.aladhan.com/v1/timings/' + dd + '-' + mm + '-' + d.getFullYear() +
         '?latitude=' + m.lat + '&longitude=' + m.lng + '&method=' + (m.method || 2) + '&school=' + school;
       fetch(url).then(r => r.json()).then(j => {
@@ -634,12 +703,30 @@ class Component extends DCLogic {
     } catch (e) {}
   };
 
+  getMasjidList() {
+    return this.state.geoMasjids.length > 0 ? this.state.geoMasjids : this.masjids;
+  }
   buildSched(id) {
-    const selected = this.masjids.find(m => m.id === id) || this.masjids[0];
-    const live = (this.state.times || {})[id];
-    const sched = live
+    const list = this.getMasjidList();
+    const selected = list.find(m => m.id === id) || list[0] || this.masjids[0];
+    const live = (this.state.times || {})[selected.id];
+    let sched = live
       ? this.schedFromTimings(live, selected)
-      : selected.sched.map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }));
+      : (selected.sched || []).map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }));
+    if (!sched.length) {
+      sched = [
+        { key: 'Fajr',    arabic: 'الفجر',  azan: '--:--', iqamah: '--:--', sun: false },
+        { key: 'Sunrise', arabic: 'الشروق', azan: '--:--', iqamah: null,    sun: true  },
+        { key: 'Dhuhr',   arabic: 'الظهر',  azan: '--:--', iqamah: '--:--', sun: false },
+        { key: 'Asr',     arabic: 'العصر',  azan: '--:--', iqamah: '--:--', sun: false },
+        { key: 'Maghrib', arabic: 'المغرب', azan: '--:--', iqamah: '--:--', sun: false },
+        { key: 'Isha',    arabic: 'العشاء', azan: '--:--', iqamah: '--:--', sun: false },
+      ];
+    }
+    const asrOff = this.state.asrOffset || 0;
+    if (asrOff !== 0) {
+      sched = sched.map(p => (p.key === 'Asr' && p.azan !== '--:--') ? { ...p, azan: this.addMin(p.azan, asrOff) } : p);
+    }
     return { selected, sched, live: !!live };
   }
 
@@ -853,8 +940,8 @@ class Component extends DCLogic {
   renderVals() {
     const now = this.state.now;
     const pad = n => String(n).padStart(2, '0');
-    const use24 = this.props.use24Hour ?? false;
-    const showSeconds = this.props.showSeconds ?? true;
+    const use24 = this.state.use24 ?? this.props.use24Hour ?? false;
+    const showSeconds = this.state.showSec ?? this.props.showSeconds ?? true;
     const screen = this.state.screen;
 
     const { selected, sched, live } = this.buildSched(this.state.selectedId);
@@ -911,7 +998,7 @@ class Component extends DCLogic {
 
     // masjid picker view
     const selId = this.state.selectedId;
-    const masjidsView = this.masjids.map(m => ({
+    const masjidsView = this.getMasjidList().map(m => ({
       name: m.name, address: m.address, distance: m.distance,
       jummahLabel: this.fmt(toMin(m.jummah), use24),
       isSelected: m.id === selId,
@@ -969,6 +1056,42 @@ class Component extends DCLogic {
       navColM: screen === 'masjid' ? '#e0bd76' : dim,
       navColA: dim,
       navColN: screen === 'alerts' ? '#e0bd76' : dim,
+      // clock settings
+      use24CardBg:    use24 ? '#e0bd76' : 'rgba(245,239,225,.12)',
+      use24Col:       use24 ? '#0e4536' : 'rgba(245,239,225,.5)',
+      use24TrackBg:   use24 ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)',
+      use24DotLeft:   use24 ? '18px' : '3px',
+      use24Label:     use24 ? 'ON — 24-hour display' : 'OFF — 12-hour AM/PM',
+      showSecCardBg:  showSeconds ? '#e0bd76' : 'rgba(245,239,225,.12)',
+      showSecCol:     showSeconds ? '#0e4536' : 'rgba(245,239,225,.5)',
+      showSecTrackBg: showSeconds ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)',
+      showSecDotLeft: showSeconds ? '18px' : '3px',
+      showSecLabel:   showSeconds ? 'ON — Shows seconds' : 'OFF — Hidden',
+      toggleUse24: this.toggleUse24,
+      toggleShowSec: this.toggleShowSec,
+      // asr settings
+      asrMethod: this.state.asrMethod,
+      asrOffset: this.state.asrOffset,
+      asrOffsetLabel: this.state.asrOffset === 0 ? 'No adjustment' : (this.state.asrOffset > 0 ? '+' + this.state.asrOffset + ' min' : this.state.asrOffset + ' min'),
+      asrCurrentTime: (() => { const ar = sched.find(p => p.key === 'Asr'); return ar && ar.azan !== '--:--' ? this.fmt(toMin(ar.azan), use24) : '--:--'; })(),
+      asrStdSel: this.state.asrMethod === 'Standard',
+      asrHanSel: this.state.asrMethod === 'Hanafi',
+      asrStdBorder: this.state.asrMethod === 'Standard' ? '#e0bd76' : 'rgba(224,189,118,.25)',
+      asrStdBg:     this.state.asrMethod === 'Standard' ? 'rgba(224,189,118,.15)' : 'transparent',
+      asrStdCol:    this.state.asrMethod === 'Standard' ? '#e0bd76' : 'rgba(245,239,225,.45)',
+      asrStdTxt:    this.state.asrMethod === 'Standard' ? 'rgba(245,239,225,.85)' : 'rgba(245,239,225,.35)',
+      asrHanBorder: this.state.asrMethod === 'Hanafi' ? '#e0bd76' : 'rgba(224,189,118,.25)',
+      asrHanBg:     this.state.asrMethod === 'Hanafi' ? 'rgba(224,189,118,.15)' : 'transparent',
+      asrHanCol:    this.state.asrMethod === 'Hanafi' ? '#e0bd76' : 'rgba(245,239,225,.45)',
+      asrHanTxt:    this.state.asrMethod === 'Hanafi' ? 'rgba(245,239,225,.85)' : 'rgba(245,239,225,.35)',
+      locBtnOpacity: this.state.locLoading ? '0.6' : '1',
+      setAsrStd: () => this.setAsrMethod('Standard'),
+      setAsrHan: () => this.setAsrMethod('Hanafi'),
+      asrOffPlus: () => this.setAsrOffset(1),
+      asrOffMinus: () => this.setAsrOffset(-1),
+      asrOffPlus5: () => this.setAsrOffset(5),
+      asrOffMinus5: () => this.setAsrOffset(-5),
+      resetAsrOff: this.resetAsrOffset,
       // per-prayer notification prefs
       notifPrayers: ['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(k => {
         const p = this.state.notifPrefs[k] || { audio: true, visual: true };
@@ -976,10 +1099,18 @@ class Component extends DCLogic {
         return {
           key: k, arabic: ar,
           audioOn: p.audio, visualOn: p.visual,
-          audioBg:   p.audio  ? '#e0bd76' : 'rgba(245,239,225,.12)',
-          audioCol:  p.audio  ? '#0e4536' : 'rgba(245,239,225,.5)',
-          visualBg:  p.visual ? '#e0bd76' : 'rgba(245,239,118,.12)',
-          visualCol: p.visual ? '#0e4536' : 'rgba(245,239,225,.5)',
+          audioBg:       p.audio  ? '#e0bd76' : 'rgba(245,239,225,.12)',
+          audioCol:      p.audio  ? '#0e4536' : 'rgba(245,239,225,.5)',
+          audioTrackBg:  p.audio  ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)',
+          audioDotLeft:  p.audio  ? '18px' : '3px',
+          audioBgDot:    p.audio  ? '#0e4536' : 'rgba(245,239,225,.3)',
+          audioLabel:    p.audio  ? 'ON — Plays adhan audio' : 'OFF — Silent at prayer time',
+          visualBg:      p.visual ? '#e0bd76' : 'rgba(245,239,118,.12)',
+          visualCol:     p.visual ? '#0e4536' : 'rgba(245,239,225,.5)',
+          visualTrackBg: p.visual ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)',
+          visualDotLeft: p.visual ? '18px' : '3px',
+          visualBgDot:   p.visual ? '#0e4536' : 'rgba(245,239,225,.3)',
+          visualLabel:   p.visual ? 'ON — Shows reminder' : 'OFF — No popup',
           toggleAudio: () => this.toggleNotif(k, 'audio'),
           toggleVisual: () => this.toggleNotif(k, 'visual'),
         };
@@ -1002,7 +1133,10 @@ class Component extends DCLogic {
       nextName: next.key, nextArabic: next.arabic, countdown,
       prayers, jummahList,
       // picker
-      masjids: masjidsView, locStatus: this.state.locStatus, timesSource, detectLocation: this.detectLocation,
+      masjids: masjidsView, locStatus: this.state.locStatus,
+      locLoading: this.state.locLoading,
+      locBtnLabel: this.state.locLoading ? 'Finding…' : 'Locate',
+      timesSource, detectLocation: this.detectLocation,
       // adhan
       azanName: apRow.key, azanArabic: apRow.arabic,
       azanVoices, toggleAzan: this.toggleAzan,
@@ -1017,16 +1151,95 @@ class Component extends DCLogic {
   }
 
   detectLocation = () => {
-    this.setState({ locStatus: 'Locating…' });
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        () => this.setState({ locStatus: 'Located · masjids near you' }),
-        () => this.setState({ locStatus: 'Showing Milton, Ontario' }),
-        { timeout: 5000 }
-      );
-    } else {
-      this.setState({ locStatus: 'Showing Milton, Ontario' });
+    this.setState({ locStatus: 'Requesting location…', locLoading: true });
+    if (!navigator.geolocation) {
+      this.setState({ locStatus: 'GPS unavailable · showing Milton, ON', locLoading: false });
+      return;
     }
+    try {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          this.setState({ userLat: lat, userLng: lng, locStatus: 'Finding nearby mosques…' });
+          this.fetchNearbyMasjids(lat, lng);
+        },
+        () => this.setState({ locStatus: 'Location denied · tap Locate to retry', locLoading: false }),
+        { timeout: 12000, enableHighAccuracy: true }
+      );
+    } catch(e) {
+      this.setState({ locStatus: 'Location unavailable · showing Milton, ON', locLoading: false });
+    }
+  };
+
+  fetchNearbyMasjids = (lat, lng) => {
+    const q = `[out:json][timeout:20];(node["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng}););out center 15;`;
+    fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q })
+      .then(r => r.json())
+      .then(data => {
+        const els = data.elements || [];
+        const hav = (a1,o1,a2,o2) => {
+          const R=6371, dA=(a2-a1)*Math.PI/180, dO=(o2-o1)*Math.PI/180;
+          const s = Math.sin(dA/2)**2 + Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dO/2)**2;
+          return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+        };
+        const geo = els.map((el, i) => {
+          const elLat = el.lat || (el.center && el.center.lat) || lat;
+          const elLng = el.lon || (el.center && el.center.lon) || lng;
+          const tags = el.tags || {};
+          const name = tags['name:en'] || tags.name || tags['name:ar'] || 'Mosque';
+          const city = tags['addr:city'] || tags['addr:suburb'] || tags['addr:town'] || '';
+          const hno  = tags['addr:housenumber'] ? tags['addr:housenumber'] + ' ' : '';
+          const street = tags['addr:street'] ? hno + tags['addr:street'] : '';
+          const dist = hav(lat, lng, elLat, elLng);
+          const distMi = (dist * 0.621371).toFixed(1);
+          return {
+            id: 'geo_' + (el.id || i),
+            name, address: [street, city].filter(Boolean).join(', ') || 'Nearby mosque',
+            distance: distMi, lat: elLat, lng: elLng,
+            method: 2, jummah: '13:00', sched: []
+          };
+        }).sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance)).slice(0, 12);
+
+        if (!geo.length) {
+          this.setState({ locStatus: 'No mosques found within 15 km · showing Milton', locLoading: false });
+          return;
+        }
+        this.setState({
+          geoMasjids: geo, selectedId: geo[0].id, times: {},
+          locStatus: geo.length + ' mosques found near you', locLoading: false
+        });
+        geo.forEach(m => this.fetchTimes(m));
+      })
+      .catch(() => this.setState({ locStatus: 'Could not reach location service · check connection', locLoading: false }));
+  };
+
+  setAsrMethod = (method) => {
+    this.setState({ asrMethod: method, times: {} }, () => {
+      this.getMasjidList().forEach(m => this.fetchTimes(m));
+    });
+    try { localStorage.setItem('pc_asr_method', method); } catch(e) {}
+  };
+
+  setAsrOffset = (delta) => {
+    const n = Math.max(-30, Math.min(30, (this.state.asrOffset || 0) + delta));
+    this.setState({ asrOffset: n });
+    try { localStorage.setItem('pc_asr_offset', String(n)); } catch(e) {}
+  };
+
+  resetAsrOffset = () => {
+    this.setState({ asrOffset: 0 });
+    try { localStorage.setItem('pc_asr_offset', '0'); } catch(e) {}
+  };
+
+  toggleUse24 = () => {
+    const val = !(this.state.use24 ?? this.props.use24Hour ?? false);
+    this.setState({ use24: val });
+    try { localStorage.setItem('pc_use24', String(val)); } catch(e) {}
+  };
+  toggleShowSec = () => {
+    const val = !(this.state.showSec ?? this.props.showSeconds ?? true);
+    this.setState({ showSec: val });
+    try { localStorage.setItem('pc_showsec', String(val)); } catch(e) {}
   };
 }
 </script>
