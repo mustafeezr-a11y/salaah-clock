@@ -99,7 +99,7 @@
             <div style="position:absolute; inset:15px; background:#0e4536; border-radius:50%;"></div>
           </div>
           <div style="flex:1 1 auto; min-width:0;">
-            <div style="font:21px/1.1 Marcellus,serif; color:#0e4536; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ masjidName }}</div>
+            <div style="font:18px/1.2 Marcellus,serif; color:#0e4536; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ masjidName }}</div>
             <div style="font:12px/1.3 'Cormorant Garamond',serif; font-weight:600; color:rgba(14,69,54,.78); margin-top:3px;">{{ gregShort }} · {{ hijri }}</div>
           </div>
           <div onClick="{{ goMasjid }}" style="cursor:pointer; flex:0 0 auto; width:40px; height:40px; border-radius:50%; border:1.5px solid rgba(14,69,54,.5); display:flex; align-items:center; justify-content:center;" style-hover="background:rgba(14,69,54,.1);">
@@ -190,7 +190,7 @@
                   <circle cx="6" cy="6" r="4.5" stroke="#e0bd76" stroke-width="1.4"></circle>
                   <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="#e0bd76" stroke-width="1.4" stroke-linecap="round"></line>
                 </svg>
-                <input type="text" value="{{ cityInput }}" onChange="{{ onCityInput }}" onKeyDown="{{ onCityKeyDown }}" placeholder="Search city or country…" style="flex:1 1 auto; background:transparent; border:none; outline:none; font:500 14px/1 'Cormorant Garamond',serif; color:#f5efe1; padding:0; width:100%; min-width:0;" />
+                <input type="text" onChange="{{ onCityInput }}" onKeyDown="{{ onCityKeyDown }}" placeholder="Search city or country…" style="flex:1 1 auto; background:transparent; border:none; outline:none; font:500 14px/1 'Cormorant Garamond',serif; color:#f5efe1; padding:0; width:100%; min-width:0;" />
               </div>
               <div onClick="{{ searchCity }}" style="cursor:pointer; padding:11px 14px; border-radius:9px; background:#e0bd76; font:10px/1 Marcellus,serif; letter-spacing:1px; color:#0b3a2b; text-transform:uppercase; opacity:{{ citySearchBtnOpacity }}; display:flex; align-items:center; flex:0 0 auto;" style-hover="opacity:.85;">{{ citySearchBtnLabel }}</div>
             </div>
@@ -1180,10 +1180,9 @@ class Component extends DCLogic {
       timesSource: this.state.timesLoading ? 'Fetching prayer times…' : timesSource,
       timesLoading: this.state.timesLoading,
       detectLocation: this.detectLocation,
-      cityInput: this.state.cityInput,
-      onCityInput: e => this.setState({ cityInput: e.target.value }),
-      onCityKeyDown: e => { if (e.key === 'Enter') this.searchByCity(this.state.cityInput); },
-      searchCity: () => this.searchByCity(this.state.cityInput),
+      onCityInput: e => { this._cityVal = e.target.value; },
+      onCityKeyDown: e => { if (e.key === 'Enter') this.searchByCity(this._cityVal || ''); },
+      searchCity: () => this.searchByCity(this._cityVal || ''),
       citySearchBtnLabel: this.state.citySearching ? 'Searching…' : 'Search',
       citySearchBtnOpacity: this.state.citySearching ? '0.6' : '1',
       // adhan
