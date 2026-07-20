@@ -767,10 +767,15 @@ class Component extends DCLogic {
   buildSched(id) {
     const list = this.getMasjidList();
     const selected = list.find(m => m.id === id) || list[0] || this.masjids[0];
+    // A masjid's own posted schedule (real azan/iqamah times, entered by hand)
+    // always wins when we have one. Masjids discovered via GPS/city search
+    // never have one (sched: []), so they fall through to the AlAdhan
+    // GPS-calculated live times instead.
+    const hasOwnSchedule = !!(selected.sched && selected.sched.length);
     const live = (this.state.times || {})[selected.id];
-    let sched = live
-      ? this.schedFromTimings(live, selected)
-      : (selected.sched || []).map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }));
+    let sched = hasOwnSchedule
+      ? selected.sched.map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }))
+      : (live ? this.schedFromTimings(live, selected) : []);
     if (!sched.length) {
       sched = [
         { key: 'Fajr',    arabic: 'الفجر',  azan: '--:--', iqamah: '--:--', sun: false },
@@ -799,7 +804,7 @@ class Component extends DCLogic {
       const iq = fx2[p.key] ? fx2[p.key] : this.addMin(mv, off2[p.key] ?? dflt[p.key]);
       return { ...p, azan: mv, iqamah: iq, isManual: true };
     });
-    return { selected, sched, live: !!live };
+    return { selected, sched, live: !!live, hasOwnSchedule };
   }
 
   haversine(a1, o1, a2, o2) {
@@ -1156,9 +1161,9 @@ class Component extends DCLogic {
     const showSeconds = this.state.showSec ?? this.props.showSeconds ?? true;
     const screen = this.state.screen;
 
-    const { selected, sched, live } = this.buildSched(this.state.selectedId);
+    const { selected, sched, live, hasOwnSchedule } = this.buildSched(this.state.selectedId);
     const masjidName = selected.name;
-    const timesSource = live ? 'Live times · ISNA method' : 'Sample schedule · offline';
+    const timesSource = hasOwnSchedule ? "Masjid's posted times" : (live ? 'Live times · GPS calculated' : 'Sample schedule · offline');
 
     const toMin = s => { const p = (s || '00:00').split(':'); return (+p[0]) * 60 + (+p[1]); };
     const nowMin = now.getHours() * 60 + now.getMinutes();
