@@ -1442,17 +1442,6 @@ class Component extends DCLogic {
   };
 
   fetchNearbyMasjids = (lat, lng) => {
-    const q = `[out:json][timeout:18];(node["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:15000,${lat},${lng}););out center 12;`;
-    // overpass-api.de, lz4. and z. are mirrors of the same backend project and
-    // share its rate limits, so they can all go down together (seen live: 504s
-    // across all three). kumi.systems is a separate operator/infrastructure,
-    // so it's placed second to give a real fallback after just one timeout.
-    const endpoints = [
-      'https://overpass-api.de/api/interpreter',
-      'https://overpass.kumi.systems/api/interpreter',
-      'https://lz4.overpass-api.de/api/interpreter',
-      'https://z.overpass-api.de/api/interpreter'
-    ];
     const hav = (a1,o1,a2,o2) => {
       const R=6371, dA=(a2-a1)*Math.PI/180, dO=(o2-o1)*Math.PI/180;
       const sdA=Math.sin(dA/2), sdO=Math.sin(dO/2);
@@ -1507,19 +1496,16 @@ class Component extends DCLogic {
       } catch (e) {}
       this.setState({ locStatus: 'Auto-detect failed · type your city below', locLoading: false });
     };
-    const tryEndpoint = (idx) => {
-      if (idx >= endpoints.length) {
-        useCacheOrFail();
-        return;
-      }
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => { ctrl.abort(); }, 8000);
-      fetch(endpoints[idx], { method: 'POST', body: q, signal: ctrl.signal })
-        .then(r => { clearTimeout(timer); return r.json(); })
-        .then(data => processData(data))
-        .catch(() => { clearTimeout(timer); tryEndpoint(idx + 1); });
-    };
-    tryEndpoint(0);
+    // The actual Overpass calls (with their own mirror fallback) now happen
+    // server-side in /api/nearby.js -- calling the public API directly from
+    // the browser was unreliable/blocked on some real end-user networks even
+    // when the same query succeeded from server infrastructure.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    fetch(`/api/nearby?lat=${lat}&lng=${lng}`, { signal: ctrl.signal })
+      .then(r => { clearTimeout(timer); if (!r.ok) throw new Error('proxy failed'); return r.json(); })
+      .then(data => processData(data))
+      .catch(() => { clearTimeout(timer); useCacheOrFail(); });
   };
 
   setAsrMethod = (method) => {
