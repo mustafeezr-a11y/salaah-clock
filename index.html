@@ -279,6 +279,13 @@
             <div style="font:13px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;">{{ azanBtnLabel }}</div>
           </div>
 
+          <sc-if value="{{ isLiveAzan }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:12px;">
+              <div onClick="{{ snoozeAzan }}" style="cursor:pointer; padding:12px 24px; border-radius:30px; border:1.5px solid rgba(224,189,118,.5); font:11px/1 Marcellus,serif; letter-spacing:1.5px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.12);">{{ snoozeLabel }}</div>
+              <div onClick="{{ dismissAzan }}" style="cursor:pointer; padding:12px 24px; border-radius:30px; border:1.5px solid #e0bd76; background:rgba(224,189,118,.14); font:11px/1 Marcellus,serif; letter-spacing:1.5px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.24);">Dismiss</div>
+            </div>
+          </sc-if>
+
           <div style="display:flex; flex-direction:column; align-items:center; gap:11px;">
             <div style="font:10px/1 Marcellus,serif; letter-spacing:2px; color:rgba(245,239,225,.45); text-transform:uppercase;">Muadhin Voice</div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
@@ -339,6 +346,23 @@
               </div>
               <div style="font:600 12px/1 'Cormorant Garamond',serif; color:{{ showSecCol }};">{{ showSecLabel }}</div>
             </div>
+          </div>
+
+          <!-- ALARM CLOCK MODE -->
+          <div style="font:10px/1 Marcellus,serif; letter-spacing:2.5px; color:rgba(224,189,118,.7); text-transform:uppercase; padding-left:2px; margin-top:4px;">Alarm Clock Mode</div>
+          <div style="border:1px solid rgba(224,189,118,.22); border-radius:14px; padding:14px 18px; background:rgba(224,189,118,.04); display:flex; flex-direction:column; gap:10px;">
+            <div onClick="{{ toggleWakeLock }}" style="cursor:pointer; border-radius:12px; padding:12px 14px; background:{{ wakeCardBg }}; display:flex; flex-direction:column; gap:8px; opacity:{{ wakeLockSupported ? 1 : 0.5 }};">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="font:11px/1 Marcellus,serif; letter-spacing:1px; color:{{ wakeCol }};">KEEP SCREEN AWAKE</div>
+                </div>
+                <div style="width:36px; height:21px; border-radius:11px; background:{{ wakeTrackBg }}; position:relative; flex:0 0 auto;">
+                  <div style="position:absolute; top:3px; width:15px; height:15px; border-radius:50%; background:{{ wakeCol }}; left:{{ wakeDotLeft }};"></div>
+                </div>
+              </div>
+              <div style="font:600 12px/1 'Cormorant Garamond',serif; color:{{ wakeCol }};">{{ wakeLabel }}</div>
+            </div>
+            <div style="font:500 12px/1.5 'Cormorant Garamond',serif; color:rgba(245,239,225,.6); font-style:italic;">Prevents this device's screen from sleeping while the app stays open — the closest a web app can get to a dedicated alarm clock. It cannot ring if the app or browser is fully closed, or once the OS suspends a backgrounded tab; for a tablet you leave running, also disable auto-lock in its own display settings.</div>
           </div>
 
           <!-- NOTIFICATIONS SECTION -->
@@ -587,7 +611,10 @@
             <div style="font:400 28px/1.3 Amiri,serif; color:rgba(245,239,225,.8); margin-top:4px;">{{ reminderArabic }}</div>
           </div>
           <div style="font:500 15px/1.5 'Cormorant Garamond',serif; color:rgba(245,239,225,.7); font-style:italic;">It is time for {{ reminderName }} prayer.<br>حَيَّ عَلَى الصَّلَاة</div>
-          <div onClick="{{ dismissReminder }}" style="cursor:pointer; padding:13px 36px; border-radius:30px; border:1.5px solid #e0bd76; background:rgba(224,189,118,.1); font:12px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.22);">Dismiss</div>
+          <div style="display:flex; gap:12px;">
+            <div onClick="{{ snoozeAzan }}" style="cursor:pointer; padding:13px 26px; border-radius:30px; border:1.5px solid rgba(224,189,118,.5); font:12px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.15);">{{ snoozeLabel }}</div>
+            <div onClick="{{ dismissReminder }}" style="cursor:pointer; padding:13px 26px; border-radius:30px; border:1.5px solid #e0bd76; background:rgba(224,189,118,.1); font:12px/1 Marcellus,serif; letter-spacing:2px; color:#e0bd76; text-transform:uppercase;" style-hover="background:rgba(224,189,118,.22);">Dismiss</div>
+          </div>
         </div>
       </div>
     </sc-if>
@@ -618,6 +645,7 @@ class Component extends DCLogic {
       Isha:    { audio: true,  visual: true },
     },
     reminderPrayer: null,
+    wakeLockOn: false, wakeLockSupported: (typeof navigator !== 'undefined' && 'wakeLock' in navigator),
   };
 
   masjids = [
@@ -651,9 +679,27 @@ class Component extends DCLogic {
       this.getMasjidList().forEach(m => this.fetchTimes(m));
     }
   }
+  // Alarm-clock semantics: a prayer that already passed before the app was
+  // even opened should never ring retroactively -- only mark today's prayers
+  // that are genuinely still ahead of `now` as eligible to fire. Prayers that
+  // occur later while this same session keeps running are untouched here and
+  // still fire normally via checkAzanTrigger.
+  markPastPrayersFired(now) {
+    const today = now.toDateString();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const toMin = s => { const p = (s || '00:00').split(':'); return (+p[0]) * 60 + (+p[1]); };
+    try {
+      const { sched } = this.buildSched(this.state.selectedId);
+      for (const p of sched) {
+        if (p.sun || p.azan === '--:--') continue;
+        if (toMin(p.azan) <= nowMin) this._firedToday[today + '_' + p.key] = true;
+      }
+    } catch (e) {}
+  }
   componentDidMount() {
     this._firedToday = {};
     this._lastCheckDate = new Date().toDateString();
+    this.markPastPrayersFired(new Date());
     if ('Notification' in window && Notification.permission === 'default') {
       try { Notification.requestPermission(); } catch (e) {}
     }
@@ -665,7 +711,14 @@ class Component extends DCLogic {
     // Foreground timers get throttled/paused when the tab is backgrounded or the
     // phone screen locks. Re-check (with a grace window) the moment the app
     // becomes visible again so a prayer time missed while backgrounded still fires.
-    this._visHandler = () => { if (document.visibilityState === 'visible') this.checkAzanTrigger(new Date(), true); };
+    this._visHandler = () => {
+      if (document.visibilityState !== 'visible') return;
+      this.checkAzanTrigger(new Date(), true);
+      // The screen wake lock is auto-released by the browser whenever the tab
+      // is hidden (screen lock, app-switch) -- re-request it every time the
+      // tab becomes visible again, for as long as the setting stays on.
+      if (this.state.wakeLockOn) this.acquireWakeLock();
+    };
     document.addEventListener('visibilitychange', this._visHandler);
     this._splashTimer = setTimeout(() => {
       if (this.state.screen === 'splash') this.setState({ screen: 'home' });
@@ -688,6 +741,11 @@ class Component extends DCLogic {
       if (mt) this.setState({ manualTimes: Object.assign({ Fajr:null, Dhuhr:null, Asr:null, Maghrib:null, Isha:null }, JSON.parse(mt)) });
       const mc = localStorage.getItem('pc_manual_coord');
       if (mc) this.setState({ manualCoord: JSON.parse(mc) });
+      const wl = localStorage.getItem('pc_wakelock');
+      if (wl === 'true' && this.state.wakeLockSupported) {
+        this.setState({ wakeLockOn: true });
+        this.acquireWakeLock();
+      }
     } catch (e) {}
     // PWA install detection
     const ua = navigator.userAgent;
@@ -710,8 +768,33 @@ class Component extends DCLogic {
     if (this._t) clearInterval(this._t);
     if (this._splashTimer) clearTimeout(this._splashTimer);
     if (this._visHandler) document.removeEventListener('visibilitychange', this._visHandler);
+    if (this._snoozeTimers) Object.values(this._snoozeTimers).forEach(clearTimeout);
+    this.releaseWakeLock();
     this.stopSynth();
   }
+
+  // Keeps the screen from sleeping while the app is open and in the
+  // foreground -- the closest a plain web app can get to "act like an alarm
+  // clock" without a native shell. It cannot keep running once the tab is
+  // backgrounded, the browser is closed, or the OS itself suspends the page;
+  // the wake lock is released automatically the instant the tab is hidden
+  // (that's why _visHandler re-requests it on every return to visibility).
+  acquireWakeLock = async () => {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      this._wakeLock = await navigator.wakeLock.request('screen');
+      this._wakeLock.addEventListener('release', () => { this._wakeLock = null; });
+    } catch (e) { this._wakeLock = null; }
+  };
+  releaseWakeLock() {
+    if (this._wakeLock) { try { this._wakeLock.release(); } catch (e) {} this._wakeLock = null; }
+  }
+  toggleWakeLock = () => {
+    const next = !this.state.wakeLockOn;
+    this.setState({ wakeLockOn: next });
+    try { localStorage.setItem('pc_wakelock', String(next)); } catch (e) {}
+    if (next) this.acquireWakeLock(); else this.releaseWakeLock();
+  };
 
   fmt(min, use24) {
     let h = Math.floor(min / 60) % 24, m = min % 60;
@@ -954,6 +1037,7 @@ class Component extends DCLogic {
     const src = this.srcFor(key);
     if (!src) { this.triggerImport(); return; }
     this.stopAll();
+    this._isSample = true;
     const a = this.ensureEl();
     a.src = src; a.currentTime = 0;
     a.play()
@@ -972,6 +1056,7 @@ class Component extends DCLogic {
     const src = this.srcFor(key);
     if (!src) return;
     this.stopAll();
+    this._isSample = false;
     const a = this.ensureEl();
     a.src = src; a.currentTime = 0;
     a.play()
@@ -1148,7 +1233,38 @@ class Component extends DCLogic {
     try { localStorage.setItem('pc_notif_prefs', JSON.stringify(prefs)); } catch (e) {}
     this.pushNativeSchedule();
   };
-  dismissReminder = () => this.setState({ reminderPrayer: null });
+  // Stops the sound and clears every live-azan UI surface (the Adhan screen's
+  // player and the reminder popup can both be showing at once). Used by both
+  // the Adhan screen's Dismiss button and the reminder popup's Dismiss button.
+  dismissAzan = () => {
+    const key = this.state.azanScreenPrayer || this.state.reminderPrayer;
+    if (key && this._snoozeTimers && this._snoozeTimers[key]) {
+      clearTimeout(this._snoozeTimers[key]);
+      delete this._snoozeTimers[key];
+    }
+    this.stopAll();
+    this.setState(s => ({
+      azanPlaying: false, azanEnded: true, reminderPrayer: null,
+      screen: s.screen === 'azan' ? 'home' : s.screen,
+    }));
+  };
+  SNOOZE_MIN = 5;
+  snoozeAzan = () => {
+    const key = this.state.azanScreenPrayer || this.state.reminderPrayer;
+    if (!key) return;
+    this.stopAll();
+    this.setState(s => ({
+      azanPlaying: false, reminderPrayer: null,
+      screen: s.screen === 'azan' ? 'home' : s.screen,
+    }));
+    this._snoozeTimers = this._snoozeTimers || {};
+    if (this._snoozeTimers[key]) clearTimeout(this._snoozeTimers[key]);
+    this._snoozeTimers[key] = setTimeout(() => {
+      delete this._snoozeTimers[key];
+      this.fireAzan(key);
+    }, this.SNOOZE_MIN * 60000);
+  };
+  dismissReminder = () => this.dismissAzan();
   installApp = () => {
     if (this.state.isIOS) {
       this.setState({ showIOSInstructions: true });
@@ -1296,6 +1412,16 @@ class Component extends DCLogic {
       showSecLabel:   showSeconds ? 'ON — Shows seconds' : 'OFF — Hidden',
       toggleUse24: this.toggleUse24,
       toggleShowSec: this.toggleShowSec,
+      // wake lock ("keep screen awake" / alarm-clock mode)
+      wakeLockSupported: this.state.wakeLockSupported,
+      wakeCardBg:    this.state.wakeLockOn ? '#e0bd76' : 'rgba(245,239,225,.12)',
+      wakeCol:       this.state.wakeLockOn ? '#0e4536' : 'rgba(245,239,225,.5)',
+      wakeTrackBg:   this.state.wakeLockOn ? 'rgba(14,69,54,.4)' : 'rgba(245,239,225,.18)',
+      wakeDotLeft:   this.state.wakeLockOn ? '18px' : '3px',
+      wakeLabel: !this.state.wakeLockSupported
+        ? 'Not supported on this browser'
+        : (this.state.wakeLockOn ? 'ON — Screen stays awake while app is open' : 'OFF — Screen can sleep normally'),
+      toggleWakeLock: this.toggleWakeLock,
       // asr settings
       asrMethod: this.state.asrMethod,
       asrOffset: this.state.asrOffset,
@@ -1397,6 +1523,11 @@ class Component extends DCLogic {
       azanBtnLabel: playing ? 'Pause' : (this.srcFor(voiceKey) ? 'Play Sample' : 'Import Adhan'),
       wavePlay: playing ? 'running' : 'paused',
       azanStatus, azanStatusColor: this.state.azanEnded ? '#e0bd76' : 'rgba(245,239,225,0.5)',
+      // Snooze/Dismiss only make sense for a real scheduled azan, not a
+      // voice-preview sample — isLiveAzan gates their visibility.
+      isLiveAzan: playing && !this._isSample,
+      snoozeAzan: this.snoozeAzan, dismissAzan: this.dismissAzan,
+      snoozeLabel: 'Snooze ' + this.SNOOZE_MIN + ' min',
     };
   }
 
