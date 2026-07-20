@@ -630,7 +630,7 @@ class Component extends DCLogic {
     { id: 'iccm', name: 'Islamic Community Centre of Milton', address: '8069 Esquesing Line · Milton, ON', distance: '3.2', jummah: '13:30', jummahs: ['13:30','14:45','15:45'],
       lat: 43.5552, lng: -79.8607, method: 2,
       iqFixed: { Fajr: '05:00', Dhuhr: '13:40', Asr: '19:00', Isha: '22:45' }, iqOff: { Maghrib: 6 },
-      sched: [ ['Fajr','الفجر','04:09','05:00'], ['Sunrise','الشروق','05:48',null], ['Dhuhr','الظهر','13:26','13:40'], ['Asr','العصر','17:30','19:00'], ['Maghrib','المغرب','21:00','21:06'], ['Isha','العشاء','22:30','22:45'] ] },
+      sched: [ ['Fajr','الفجر','04:17','05:00'], ['Sunrise','الشروق','05:48',null], ['Dhuhr','الظهر','13:26','13:40'], ['Asr','العصر','17:29','19:00'], ['Maghrib','المغرب','20:56','21:02'], ['Isha','العشاء','22:30','22:45'] ] },
     { id: 'hicc', name: 'HICC Masjid — Muslim Assoc. of Milton', address: 'Halton Islamic Community Centre · Oakville, ON', distance: '4.0', jummah: '13:45',
       lat: 43.4501, lng: -79.7000, method: 2, iqOff: { Fajr: 25, Dhuhr: 15, Asr: 15, Maghrib: 7, Isha: 15 },
       sched: [ ['Fajr','الفجر','04:01','04:26'], ['Sunrise','الشروق','05:47',null], ['Dhuhr','الظهر','13:22','13:37'], ['Asr','العصر','17:24','17:39'], ['Maghrib','المغرب','21:01','21:08'], ['Isha','العشاء','22:34','22:49'] ] },
@@ -773,8 +773,18 @@ class Component extends DCLogic {
     // GPS-calculated live times instead.
     const hasOwnSchedule = !!(selected.sched && selected.sched.length);
     const live = (this.state.times || {})[selected.id];
+    // Iqamah is always derived from azan + the masjid's iqFixed/iqOff policy
+    // (never read as a separate hardcoded literal) so correcting a drifted
+    // azan time can't leave iqamah silently out of sync with it.
+    const ownIqDflt = { Fajr: 20, Dhuhr: 12, Asr: 12, Maghrib: 7, Isha: 12 };
+    const ownFx = selected.iqFixed || {};
+    const ownOff = selected.iqOff || {};
     let sched = hasOwnSchedule
-      ? selected.sched.map(r => ({ key: r[0], arabic: r[1], azan: r[2], iqamah: r[3], sun: r[0] === 'Sunrise' }))
+      ? selected.sched.map(r => {
+          const key = r[0], azan = r[2];
+          const iqamah = key === 'Sunrise' ? null : (ownFx[key] ? ownFx[key] : this.addMin(azan, ownOff[key] ?? ownIqDflt[key]));
+          return { key, arabic: r[1], azan, iqamah, sun: key === 'Sunrise' };
+        })
       : (live ? this.schedFromTimings(live, selected) : []);
     if (!sched.length) {
       sched = [
