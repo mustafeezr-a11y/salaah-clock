@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Azan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  .bg {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center 40%;
+    filter: brightness(0.5) saturate(1.05);
+    transition: background-image 0.4s ease;
+  }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.75) 100%);
+  }
+  .content {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6vh 8vw;
+    box-sizing: border-box;
+    color: #f5efe3;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .prayer-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 4vh;
+  }
+  .prayer-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3vw;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.6);
+  }
+  .prayer-time {
+    font-size: 1.6vw;
+    color: #cbbf9e;
+    letter-spacing: 0.06em;
+    margin-top: 0.6vh;
+  }
+  .arabic {
+    font-family: 'Amiri', serif;
+    font-size: 4.2vw;
+    line-height: 1.9;
+    color: #ffffff;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.6);
+    max-width: 90vw;
+    margin-bottom: 3vh;
+  }
+  .english {
+    font-size: 1.9vw;
+    font-style: italic;
+    color: #e9e2d0;
+    max-width: 60vw;
+    line-height: 1.5;
+    margin-bottom: 2.5vh;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  }
+  .ref {
+    font-size: 1.3vw;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #cbbf9e;
+    margin-bottom: 1vh;
+  }
+  .divider {
+    width: 90px;
+    height: 1px;
+    background: rgba(203,191,158,0.7);
+    margin: 0 0 3vh 0;
+  }
+  .credit {
+    position: fixed;
+    bottom: 1.2vh;
+    right: 1.5vw;
+    font-family: sans-serif;
+    font-size: 0.8vw;
+    color: rgba(255,255,255,0.35);
+  }
+  @media (max-width: 900px) {
+    .prayer-name { font-size: 5.5vw; }
+    .prayer-time { font-size: 3.2vw; }
+    .arabic { font-size: 6.5vw; }
+    .english { font-size: 3.2vw; max-width: 85vw; }
+    .ref { font-size: 2.2vw; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg" id="bg"></div>
+  <div class="overlay"></div>
+  <div class="content">
+    <div class="prayer-heading">
+      <div class="prayer-name" id="prayerName">Azan</div>
+      <div class="prayer-time" id="prayerTime"></div>
+    </div>
+    <div class="arabic">إِنَّنِى أَنَا ٱللَّهُ لَآ إِلَٰهَ إِلَّآ أَنَا۠ فَٱعْبُدْنِى وَأَقِمِ ٱلصَّلَوٰةَ لِذِكْرِىٓ</div>
+    <div class="divider"></div>
+    <div class="english">&ldquo;Indeed, I am Allah. There is no deity except Me, so worship Me and establish prayer for My remembrance.&rdquo;</div>
+    <div class="ref">Surah Ta-Ha &middot; 20:14</div>
+  </div>
+  <div class="credit" id="credit">Photo via Unsplash</div>
+  <script>
+    var IMAGES = {
+      fajr:    { url: "https://images.unsplash.com/photo-1563300365-9c77e472e7a5?fm=jpg&q=80&w=1920&auto=format&fit=crop", credit: "Mosque at dawn · Unsplash" },
+      dhuhr:   { url: "https://images.unsplash.com/photo-1691446930608-98466a4bdd0f?fm=jpg&q=80&w=1920&auto=format&fit=crop", credit: "Sultan Ahmed Mosque · Unsplash" },
+      asr:     { url: "https://images.unsplash.com/photo-1487800940032-1cf211187aea?fm=jpg&q=80&w=1920&auto=format&fit=crop", credit: "Mosque, golden hour · Unsplash" },
+      maghrib: { url: "https://images.unsplash.com/photo-1610121073761-2bf492eca52a?fm=jpg&q=80&w=1920&auto=format&fit=crop", credit: "Badshahi Mosque, Lahore · Photo: Usama Sher Khan / Unsplash" },
+      isha:    { url: "https://images.unsplash.com/photo-1668297294933-050dbe784dee?fm=jpg&q=80&w=1920&auto=format&fit=crop", credit: "Mosque at night · Unsplash" }
+    };
+
+    function getParam(name) {
+      var m = new RegExp("[?&]" + name + "=([^&]*)").exec(window.location.search);
+      return m ? decodeURIComponent(m[1].replace(/\+/g, " ")) : "";
+    }
+
+    var prayer = getParam("prayer") || "";
+    var time = getParam("time") || "";
+    var key = prayer.toLowerCase();
+    var pic = IMAGES[key] || IMAGES.maghrib;
+
+    document.getElementById("bg").style.backgroundImage = "url('" + pic.url + "')";
+    document.getElementById("credit").textContent = pic.credit;
+    if (prayer) document.getElementById("prayerName").textContent = prayer;
+    if (time) document.getElementById("prayerTime").textContent = time;
+  </script>
+</body>
+</html>
